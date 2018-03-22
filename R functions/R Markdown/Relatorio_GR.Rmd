@@ -1,0 +1,182 @@
+---
+output:
+  pdf_document:
+    latex_engine: xelatex
+    fig_caption: yes
+fontsize: 11 pt
+geometry: margin = 2.54cm
+mainfont: Calibri Light
+header-includes: 
+- \usepackage{float}
+- \usepackage{caption}
+- \captionsetup[figure]{name=Figura}
+- \captionsetup[table]{name=Tabela}
+- \captionsetup{font=small,labelfont=bf,aboveskip=2pt,belowskip=2pt}
+- \setlength{\intextsep}{0.0pt plus 2.0pt minus 2.0pt}
+- \setlength{\floatsep}{0.0pt plus 2.0pt minus 2.0pt}
+---
+```{r Setup, include=FALSE}
+opts_chunk$set(echo = FALSE,fig.pos = "H")
+PM = month(RegInst_AM[1,2])
+PMPT = Meses_pt(RegInst_AM[1,2])
+YY = year(as.yearmon(M))
+YY1 = year(as.yearmon(M)-11/12)
+YY2 = year(as.yearmon(M)-1)
+YY3 = year(as.yearmon(M)-23/12)
+MM = month(as.yearmon(M))
+MM1 = month(as.yearmon(M)+1/12)
+MMPT = Meses_pt(as.yearmon(M))
+MMPT1 = Meses_pt(as.yearmon(M)+1/12)
+```
+\begin{center}\includegraphics[width=60mm]{Figures/RGB-05_horizontal_para_reduçao}\end{center}
+\begin{center}\fontsize{20}{16}\selectfont \textbf{Gestor Remoto\\}\end{center}
+\begin{center}\fontsize{14}{16}\selectfont {Relatório de consumos de energia elétrica - `r MMPT` de `r YY`\\Infraestrutura: `r paste0(NomeInst," (",Gestao,")")`}\end{center}
+*****
+\begingroup\fontsize{16}{16}\selectfont \textbf{1. Consumos anuais}\endgroup\par
+```{r Text1, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+if (MM != 12 && PM == 1) {
+  text <- paste0("Na tabela seguinte apresenta-se um histórico de valores de energia elétrica consumida nos últimos 3 anos, assim como o valor consumido este ano até ao mês de ",MMPT,". É também apresentada a variação do consumo anual, com uma estimativa para o presente ano caso a tendência de consumo se mantenha nos restantes meses, de acordo com a previsão do gráfico da Figura 1:")
+} else if (MM != 12 && PM != 1) {
+  text <- paste0("Na tabela seguinte apresenta-se um histórico de valores de energia elétrica consumida nos últimos 3 anos, desde ",PMPT," de ",YY-3,", assim como o valor consumido este ano até ao mês de ",MMPT,". É também apresentada a variação do consumo médio mensal (CMM) para cada ano, com uma estimativa para o presente ano caso a tendência de consumo se mantenha nos restantes meses, de acordo com a previsão do gráfico da Figura 1:")
+} else if (MM == 12 && PM == 1) {
+  text <- paste0("Na tabela seguinte apresenta-se um histórico de valores de energia elétrica consumida neste e nos últimos 3 anos, além da respectiva variação:")
+} else if (MM == 12 && PM != 1) {
+  text <- paste0("Na tabela seguinte apresenta-se um histórico de valores de energia elétrica consumida neste e nos últimos 3 anos, desde ",PMPT," de ",YY-3,", além da respectiva variação do consumo médio mensal (CMM) para cada ano:")}
+cat(text)
+```
+```{r T1, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+if (MM == 12) {EE = "           ";AUX = "              "} else {EE = "(estimativa)";AUX = paste0(", até ",MMPT,":")}
+if (PM == 1) {AUX0 = "         ";VAR = "Variação"} else {AUX0 = paste0(", desde ",PMPT,":");VAR = "Variação CMM"}
+LA = c(round(sum(RegInst_AM[RegInst_AM$Ano == YY-3,3])/1000,1),
+       round(sum(RegInst_AM[RegInst_AM$Ano == YY-2,3])/1000,1),
+       round(sum(RegInst_AM[RegInst_AM$Ano == YY-1,3])/1000,1),
+       round(sum(RegInst_AM[RegInst_AM$Ano == YY,3])/1000,1),
+       round(sum(RegInst_AM_HP[RegInst_AM_HP$Ano == YY,3])/1000,1))
+tabl <- paste0("
+|            |      |           |           |            |                               |
+|------------|------|:---------:|:---------:|:----------:|-------------------------------|
+|**Ano**     |      | ",YY-3,AUX0," | ",YY-2,"      | ",YY-1,"       |  **",YY,"**",AUX,"       |
+|**Consumo** |[MWh] | ",LA[1],"         | ",LA[2],"     | ",LA[3],"      |  ",LA[4],"                         |
+|**",VAR,"**|[%]   |  ---      | ",round((LA[2]/(LA[1]/(13-PM)*12)-1)*100,1),"%      | ",round((LA[3]/LA[2]-1)*100,1),"%        |  ",round((LA[5]/LA[3]-1)*100,1),"% ",EE,"         |")
+cat(tabl)
+```
+
+Table: Histórico de consumos de eletricidade.
+
+```{r Text2, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+if (MM != 12) {
+text <- paste0("O gráfico seguinte representa a variação do consumo mensal de energia elétrica dos últimos anos além de uma previsão da possível evolução para os restantes meses deste ano:")} else {
+ text <- paste0("O gráfico seguinte representa a variação do consumo mensal de energia elétrica dos últimos anos:")}
+cat(text)
+```
+\vspace{15pt}
+```{r G1, fig.height = 3.2, fig.width = 6.4, fig.align = "center", warnings=FALSE,fig.cap="Evolução do consumo mensal ao longos dos últimos anos."}
+G1_Consumo_Mensal(RegInst_AM_HP)
+
+#####################################################
+### fig.width = 6.4, máximo sem latex desformatar ###
+#####################################################
+```
+```{r Text3, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+if (MM != 12 & LA[5] > LA[3]) {
+text <- "Observa-se que, de acordo com a previsão, o consumo para o restante ano poderá ser superior ao do ano anterior. Recomenda-se a adoção de medidas de poupança no consumo de energia elétrica para ativamente reverter esta tendência."
+} else if (MM != 12 & LA[5] < LA[3]) {
+ text <- "Observa-se que, de acordo com a previsão, o consumo para o restante ano poderá ser inferior ao do ano anterior. Recomenda-se a continuação de boas práticas de poupança no consumo de energia elétrica para manter esta tendência."
+} else if (MM == 12 & LA[5] > LA[3]) {
+ text <- "Observa-se que o consumo deste ano foi superior ao do ano anterior. Recomenda-se a adoção de medidas de poupança no consumo de energia elétrica para ativamente reverter esta tendência."
+ } else if (MM == 12 & LA[5] < LA[3]) {
+ text <- "Observa-se que o consumo deste ano foi inferior ao do ano anterior. Recomenda-se a continuação de boas práticas de poupança no consumo de energia elétrica para manter esta tendência."}
+cat(text)
+```
+
+\pagebreak
+
+\begingroup\fontsize{16}{16}\selectfont \textbf{2. Consumos mensais}\endgroup\par
+O gráfico seguinte representa a variação no consumo dos 24 últimos meses (12 + 12 homólogos):
+\vspace{15pt}
+```{r G2, fig.height = 2.6, fig.width = 6.4, fig.align = "center", warnings=FALSE,fig.cap="Perfil de consumos mensais comparado com o período homólogo."}
+G2_Consumo_12Hom(RegInst_AM12,TT)
+```
+Este consumo foi normalizado para um mês típico com um número médio de dias úteis, Sábados, Domingos e feriados, obtido a partir desta amostra de 24 meses. A tabela seguinte resume esta informação, apresentando os valores totais de consumo de eletricidade normalizados para os últimos 12 meses e para os 12 meses homólogos:
+```{r T2, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+P1 = sum(RegInst_AM12[1:12,3])
+P2 = sum(RegInst_AM12[13:24,3])
+tabl <- paste0("
+| ",CodInst," | ",substr(MMPT1,1,3),". ",YY3," - ",substr(MMPT,1,3),". ",YY2," |  ",substr(MMPT1,1,3),". ",YY1," - ",substr(MMPT,1,3),". ",YY," | Variação           |
+|-------------|:---------------------:|:----------------------:|:------------------:|
+|**Consumo** [MWh] |         ",round(P1/1000,1),"    |           ",round(P2/1000,1),"        |     ",round((P2/P1-1)*100,1),"%           |")
+cat(tabl)
+```
+
+Table: Comparação de consumos em períodos homólogos.
+
+```{r Text4, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+if (TT == "MT") {
+text <- "O gráfico seguinte representa a variação mensal da potência tomada, contratada mínima, contratada e instalada nos últimos 18 meses:"
+} else if (TT == "BTE") {
+ text <- "O gráfico seguinte representa a variação mensal da potência tomada e contratada nos últimos 18 meses:"}
+cat(text)
+```
+\vspace{15pt}
+```{r G3, fig.height = 2.6, fig.width = 6.4, fig.align = "center", warnings=FALSE,fig.cap="Perfil mensal de potências."}
+G3_Potencia_Mensal(RegInst_AM_HP,TT)
+```
+
+\pagebreak
+
+Este gráfico permite analisar a importância de cada período horário (ponta, cheia, vazio normal e super vazio) na fatura e nos consumos de eletricidade, durante os últimos 12 meses:
+\vspace{15pt}
+```{r G4, fig.height = 3.2, fig.width = 6.4, fig.align = "center", warnings=FALSE,fig.cap="Distribuição do consumo e fatura por períodos horários, ao longo dos últimos 12 meses."}
+G4_Consumo_Anual_PHorario(consumo,fatura,M)
+```
+
+O gráfico seguinte representa o perfil do custo unitário de um kWh no primeiro dia útil do mês:
+\vspace{15pt}
+```{r G5, fig.height = 2.75, fig.width = 6.4, fig.align = "center", warnings=FALSE,fig.cap="Preço unitário da eletricidade ao longo do primeiro dia útil do mês."}
+G5_preco_unitario(newDFCD,consumo,fatura,TT,M)
+```
+
+\pagebreak
+
+\begingroup\fontsize{16}{16}\selectfont \textbf{3. Consumos diários}\endgroup\par
+O gráfico seguinte apresenta o perfil de consumo do mês em análise, identificando para cada dia o consumo diário discriminado por período horário:
+\vspace{15pt}
+```{r G6, fig.height = 3, fig.width = 6.4, fig.align = "center", warnings=FALSE,fig.cap="Perfil mensal do consumo por dia e período horário."}
+G6_Perfil_Diario_Mensal(newDFCD,TT,M)
+```
+O gráfico seguinte apresenta os consumos registados para cada dia do mês, organizados por dia da semana e tipologia, de acordo com a legenda (apenas são contabilizados feriados fora do fim de semana):
+\vspace{15pt}
+```{r G7, fig.height = 3.5, fig.width = 6.2, fig.align = "center", warnings=FALSE,fig.cap="Consumos diários por tipologia e dia da semana."}
+G7_Consumo_Mes(RegInst_ADT,M)
+```
+
+\pagebreak
+
+O gráfico em baixo apresenta a variação de potência média por tipologia ao longo das 24h de um dia. Na legenda são contabilizados os números de dias por tipologia. É também apresentada a potência mínima média e a percentagem que representa do consumo total do mês:
+\vspace{15pt}
+```{r G8, fig.height = 1.9, fig.width = 6.4, fig.align = "center", warnings=FALSE,fig.cap="Perfil diário de potência média por tipologia."}
+G8_Potencia_D_USDF(RegInst_USDF)
+```
+No próximo gráfico representam-se os perfis de consumo diários efetivos por tipologia:
+\vspace{5pt}
+```{r G9, fig.height = 5.5, fig.width = 6.4, fig.align = "center", warnings=FALSE,fig.cap="Perfis diários de potência em dias úteis, Sábados e Domingos."}
+grid.arrange(G9_Potencia_D(RegInst_USDF,"U"),
+             G9_Potencia_D(RegInst_USDF,"S"),
+             G9_Potencia_D(RegInst_USDF,"D"))
+
+###  (dias úteis, Sábados e Domingos) para melhor compreensão dos seus graus de variabilidade
+```
+
+\pagebreak
+
+\begingroup\fontsize{16}{16}\selectfont \textbf{4. Comparação de consumos}\endgroup\par
+Os gráficos seguintes apresentam a diferença dos perfis diários de consumo (numa média mensal) entre dois meses selecionados. A área a verde significa que se está a consumir menos energia no mês atual do que no mês comparado, enquanto que a área a vermelho traduz um aumento de consumo:
+\vspace{15pt}
+```{r G12, fig.height = 3.6, fig.width = 5.4, fig.align = "center", warnings=FALSE,fig.cap="Comparação de perfis entre os dois últimos meses."}
+G12_Comp_Hom(RegInst_D,RegInst_D_Hom1)
+```
+\vspace{20pt}
+```{r G13, fig.height = 3.6, fig.width = 5.4, fig.align = "center", warnings=FALSE,fig.cap="Comparação de perfis entre meses homólogos."}
+G12_Comp_Hom(RegInst_D,RegInst_D_Hom12)
+```
+
