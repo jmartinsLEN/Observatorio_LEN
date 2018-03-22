@@ -4,15 +4,15 @@
 # 
 # ### Para obter os dados das tabelas como data frames:
 # 
-# ## Método 1: sqlFetch (directo para um df)
+# ## M?todo 1: sqlFetch (directo para um df)
 # 
-# Lista_Inst <- sqlFetch(con, "Lista de instalações")
+# Lista_Inst <- sqlFetch(con, "Lista de instala??es")
 # #str(Lista_Inst)
 # 
 # #Reg_Inst_MuseuJuPom <- sqlFetch(con, "RegistodeinstalacaoMuseuJuPom")
 # #str(Reg_Inst_MuseuJuPom)
 # 
-# ## Método 2: sqlQuery (usado nas funções abaixo)
+# ## M?todo 2: sqlQuery (usado nas fun??es abaixo)
 
 library(RODBC)
 

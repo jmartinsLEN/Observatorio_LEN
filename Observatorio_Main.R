@@ -15,17 +15,17 @@ library(ggrepel)
 library(zoo)
 library(bindrcpp)
 library(gridExtra)
-setwd("~/Projects/Observatorio LEN")
-source("Meses_pt.R")
+setwd("~/Observatorio_R/observatorio_r")
+source("R functions/Outros/Meses_pt.R")
 
 
 
-### Inserir código da instalação.
+### Inserir c?digo da instala??o.
 CodInst <- "MuseuJuPom"
 CodInst <- "TeatSLuiz"
 CIL <- "XXXXXXXXX"
 
-### Inserir data inicial e final para a análise.
+### Inserir data inicial e final para a an?lise.
 ### Formato: "MM/DD/AAAA"
 
 Dia_i <- "01/01/2017"
@@ -33,9 +33,9 @@ Dia_f <- "01/01/2018"
 
 ### Para converter os dados em formato standard:
 
-source("DataConverter.R")
-source("bte_converter_funcs.R")
-source("mt_converter_funcs.R")
+source("R functions/Conversor/DataConverter.R")
+source("R functions/Conversor/bte_converter_funcs.R")
+source("R functions/Conversor/mt_converter_funcs.R")
 
 RegInst <- convertBTE("3874085")  #MuseuJuPom
 RegInst <- convertBTE("8509886")  #BiblioCoru
@@ -50,7 +50,7 @@ RegInstCineSJorge <- convertMT("6518567")
 RegInstTeatAberto <- convertMT("8320094")
 RegInstTeatSLuiz <- convertMT("10311278")
 
-### Isto serviu para adicionar Janeiro e Fevereiro de 2018 à base de dados,
+### Isto serviu para adicionar Janeiro e Fevereiro de 2018 ? base de dados,
 ### a partir dos dados de MT do ficheiro "Dados" do R.
 for (i in 1:nrow(df_ToReport)) {
   if (df_ToReport$TT[i] == "BTE") {
@@ -74,7 +74,7 @@ RegInst = convertADP(df_ToReport$CPE[25])
 InsDB(df_ToReport$CodInst[25],RegInst)
 
 
-### Caso tabela não exista ainda na DB, criar usando função seguinte:
+### Caso tabela n?o exista ainda na DB, criar usando fun??o seguinte:
 CreateTableDB(df_ToReport$CodInst[25])
 
 
@@ -109,14 +109,14 @@ CreateTableDB(df_ToReport$CodInst[25])
 
 ### Para actualizar dados na base de dados:
 
-source("UploadDataToDB.R")
+source("R functions/Ligacao DB/UploadDataToDB.R")
 UplDB(CodInst,RegInst_d)
 
 ### Para carregar os dados da base de dados LEN:    
-### Utilizando source, atenção ao directório caso
+### Utilizando source, aten??o ao direct?rio caso
 ### o script esteja numa pasta diferente.
 
-source("ImportDatafromDB.R")
+source("R functions/Ligacao DB/ImportDatafromDB.R")
 RegInst_ts = ImpDB_TS(CodInst,Dia_i,Dia_f)
 RegInst = ImpDB(CodInst)
 RegInst = ImpDB("CastSaoJor")
@@ -135,17 +135,17 @@ df_ToReport = data.frame(
 
 
 
-### Para obter um data frame com informação agregada por mês:
+### Para obter um data frame com informa??o agregada por m?s:
 
-source("DataProcessing.R")
+source("R functions/Processamento/DataProcessing.R")
 
-### Sobre que mês se debruça este relatório (último mês com dados completos)?
+### Sobre que m?s se debru?a este relat?rio (?ltimo m?s com dados completos)?
 M = U_MONTH(RegInst)
 M = "2017-12" #formato desta data M: "AAAA-MM"
 M_Hom1 = M_HOM(M)[[1]]
 M_Hom12 = M_HOM(M)[[2]]
 
-TT = "BTE" #Gama de tensão
+TT = "BTE" #Gama de tens?o
 TT = "MT"
 PI = 2500 #Pot. Instalada = 2500 kVA (MT - Teatro S. Luiz)
 
@@ -170,7 +170,7 @@ RegInst_D_Hom1 = D_HMS_M(RegInst,M_Hom1)
 RegInst_D_Hom12 = D_HMS_M(RegInst,M_Hom12)
 
 #--------------- JORGE --------------------#
-source("Tarifas.R")
+source("R functions/Processamento/Tarifas.R")
 
 #Opcoes de ciclos: CC = "cs", "cd", "op".
 newDFCD <- buildCicloDF(RegInst, CC)
@@ -182,15 +182,15 @@ fatura <- buildFatura(newDFCD, consumo, TT, PI)
 
 
 
-### Para obter gráficos... :
+### Para obter gr?ficos... :
 
-source("DataVisualization.R")
+source("R functions/Vizualizacao/DataVisualization.R")
 
 G1_Consumo_Mensal(RegInst_AM_HP)
 
 G2_Consumo_12Hom(RegInst_AM12,TT)
 
-G3_Potencia_Mensal(RegInst_AM_HP,TT) #RegInst_AM também porque usa os mesmos dados de base
+G3_Potencia_Mensal(RegInst_AM_HP,TT) #RegInst_AM tamb?m porque usa os mesmos dados de base
 
 G4_Consumo_Anual_PHorario(consumo,fatura,M)
 
@@ -202,20 +202,20 @@ G7_Consumo_Mes(RegInst_ADT,M)
 
 G8_Potencia_D_USDF(RegInst_USDF)
 
-G9 = G9_Potencia_D(RegInst_USDF,"U")  #Gráfico 9: Perfis de potência diários dos dias úteis
+G9 = G9_Potencia_D(RegInst_USDF,"U")  #Gr?fico 9: Perfis de pot?ncia di?rios dos dias ?teis
 
-G10 = G9_Potencia_D(RegInst_USDF,"S") #Gráfico 10: Perfis de potência diários dos Sábados
+G10 = G9_Potencia_D(RegInst_USDF,"S") #Gr?fico 10: Perfis de pot?ncia di?rios dos S?bados
 
-G11 = G9_Potencia_D(RegInst_USDF,"D")  #Gráfico 11: Perfis de potência diários dos Domingos
+G11 = G9_Potencia_D(RegInst_USDF,"D")  #Gr?fico 11: Perfis de pot?ncia di?rios dos Domingos
 
 grid.arrange(G9,G10,G11)
 
-G12_Comp_Hom(RegInst_D,RegInst_D_Hom1)  #Gráfico 12: Mês homólogo anterior
+G12_Comp_Hom(RegInst_D,RegInst_D_Hom1)  #Gr?fico 12: M?s hom?logo anterior
 
-G12_Comp_Hom(RegInst_D,RegInst_D_Hom12) #Gráfico 13: Mês homólogo um ano anterior
+G12_Comp_Hom(RegInst_D,RegInst_D_Hom12) #Gr?fico 13: M?s hom?logo um ano anterior
 
 ########################
-### GERAR RELATÓRIOS ###
+### GERAR RELAT?RIOS ###
 ########################
 
 CILs = c("3874085",
@@ -232,16 +232,16 @@ CILs = df_ToReport$CIL[24]
 Ano_Mes = c("2017-03","2017-06","2017-09")
 
 
-source("DoReport.R")
+source("R functions/Gerar relatÃ³rios/DoReport.R")
 
-# Passar CILS como 1º argumento, caso se pretenda definir para que 
-# instalações os relatórios são gerados, caso contrário serão gerados 
-# relatórios para todas as instalações.
+# Passar CILS como 1? argumento, caso se pretenda definir para que 
+# instala??es os relat?rios s?o gerados, caso contr?rio ser?o gerados 
+# relat?rios para todas as instala??es.
 # 
-# Passar Ano-mês como 2º argumento no formato "AAAA-MM", caso se 
-# pretenda relatório para mês(es) especifico(s). Caso contrário relatório 
-# é gerado para o último mês completo presente nos dados respectivos 
-# à instalação. Vários meses usar vector com comando c()
+# Passar Ano-m?s como 2? argumento no formato "AAAA-MM", caso se 
+# pretenda relat?rio para m?s(es) especifico(s). Caso contr?rio relat?rio 
+# ? gerado para o ?ltimo m?s completo presente nos dados respectivos 
+# ? instala??o. V?rios meses usar vector com comando c()
 DoReport(CILs,Ano_Mes = "2017-12")
 
 
@@ -254,9 +254,9 @@ rmarkdown::render("Relatorio_GR.Rmd")
 ################
 
 
-source("DataProcessing.R")
-source("Prediction benchmarking.R")
-source("ImportDatafromDB.R")
+source("R functions/Processamento/DataProcessing.R")
+source("R functions/Outros/Prediction benchmarking.R")
+source("R functions/Ligacao DB/ImportDatafromDB.R")
 
 
 RegInst = ImpDB("CastSaoJor");
@@ -285,6 +285,6 @@ ListMAT[[]]
 
 ###
 
-defineLegalH()  # horário verão inverno...
+defineLegalH()  # hor?rio ver?o inverno...
 
 rm(list = ls())

@@ -11,8 +11,8 @@ library(dplyr)
 library(plyr)
 library(lubridate)
 
-source("R/bte_converter_funcs.R")
-source("R/mt_converter_funcs.R")
+source("R Functions/Conversor/bte_converter_funcs.R")
+source("R Functions/Conversor/mt_converter_funcs.R")
 
 #Esta funcao converte os dados provenientes de ficheiros(.cvs e xls) em dados formatados
 #independentemente do seu conteudo (BTE ou MT)
@@ -48,9 +48,3 @@ converter <- function(cils) {
   print(paste("BTEs: ", btes))
   print(paste("MTs: ", mts))
 }
-
-#converter(c("6516815", "6517031", "6517365"))
-#fileReaderMT("6517365")
-
-dMT <- convertMT("6517365")
-#dBTE <- convertBTE("6516815")
