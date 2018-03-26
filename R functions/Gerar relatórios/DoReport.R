@@ -1,20 +1,20 @@
 ########################
-### GERAR RELAT?RIOS ###
+### GERAR RELATÓRIOS ###
 ########################
 
-#Fun??o que gera relat?rios
+#Função que gera relatórios
 #'@param CILs
 #'@param Ano_Mes
 DoReport <- function(CILs,Ano_Mes) {
   
   options(OutDec= ",")
   
-  source("R Functions/Ligacao DB/ImportDatafromDB.R")
-  source("R Functions/Processamento/DataProcessing.R")
-  source("R Functions/Processamento/Tarifas.R")
-  source("R Functions/Visualizacao/DataVisualization.R")
-  source("R Functions/Conversor/bte_converter_funcs.R")
-  source("R Functions/Conversor/mt_converter_funcs.R")
+  source("ImportDatafromDB.R")
+  source("DataProcessing.R")
+  source("Tarifas.R")
+  source("DataVisualization.R")
+  source("bte_converter_funcs.R")
+  source("mt_converter_funcs.R")
   
   TabInst = ImpTI()
   
@@ -37,7 +37,7 @@ DoReport <- function(CILs,Ano_Mes) {
   if (missing(Ano_Mes)) {N = nrow(ToReport); NAM = 1} 
   else {N = nrow(ToReport) * length(Ano_Mes); NAM = length(Ano_Mes)}
   
-  pb = winProgressBar(title = paste("Gerando",N,"relat?rio(s)..."), min = 0,
+  pb = winProgressBar(title = paste("Gerando",N,"relatório(s)..."), min = 0,
                       max = N * 15, width = 300)
   p = 0
   
@@ -95,13 +95,13 @@ DoReport <- function(CILs,Ano_Mes) {
     
     outdir = paste0(AreaCML,"_",CodInst,"_",format.Date(paste0(M,"-01"),"%Y%m"),'.pdf')
     
-    ### Para gerar um relat?rio:
+    ### Para gerar um relatório:
     rmarkdown::render("Relatorio_GR.Rmd",output_file = outdir)
     
     p = p + 1; setWinProgressBar(pb, p)
     
     file.rename(from = outdir, 
-                to = paste0("Relat?rios/",outdir))
+                to = paste0("Relatórios/",outdir))
   }
   
   options(OutDec= ".")

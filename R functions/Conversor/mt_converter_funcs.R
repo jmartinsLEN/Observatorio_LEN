@@ -3,6 +3,8 @@
 #*Ficheiro que contem as funcoes para fazer conversao das MTs*#
 #*************************************************************#
 ###############################################################
+
+
 #Funcao que cria uma lista com 3 colunas (ativa, indutiva, capacitiva),
 #que contem o nome dos ficheiros ordenados pelo ano e mes
 fileReaderMT <- function(cil) {
@@ -103,7 +105,7 @@ convertMT <- function(cil) {
   colnames(convertedMtDF) <- c("timestamp", "Activa", "Indutiva", "Capacitiva")
   #convertedMtDF$`Data Hora` <- as.POSIXct(convertedMtDF$`Data Hora`, "%d/%m/%Y %H:%M%OS", tz="GMT")
   
-  ### Remove a ?ltima linha do df, referente ? meia noite do dia seguinte:
+  ### Remove a última linha do df, referente à meia noite do dia seguinte:
   convertedMtDF <- head(convertedMtDF,-1)
   
   return(convertedMtDF)

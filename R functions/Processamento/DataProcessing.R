@@ -1,13 +1,13 @@
 
-### Fun??o que agrega dados de consumo e pot?ncia associados aos 
-### ?ltimos dois anos e acrescenta uma previs?o dos meses restantes 
+### Função que agrega dados de consumo e potência associados aos 
+### últimos dois anos e acrescenta uma previsão dos meses restantes 
 ### do ano actual:
-Agr_Mes <- function(df,TT,PI,M) #df - data frame; TT - Tens?o; PI - Pot. Instalada (MT); M - m?s do relat?rio
+Agr_Mes <- function(df,TT,PI,M) #df - data frame; TT - Tensão; PI - Pot. Instalada (MT); M - mês do relatório
 {
-  ### Para criar uma nova coluna no df com o registo do m?s:
+  ### Para criar uma nova coluna no df com o registo do mês:
   df$MesAno <- as.yearmon(cut(df$timestamp, breaks = "month"))
   
-  ### Para cortar at? ao m?s M para o qual se pretende o relat?rio:
+  ### Para cortar até ao mês M para o qual se pretende o relatório:
   CM = as.yearmon(M)
   df = df[!(df$MesAno > CM),]
   
@@ -18,18 +18,18 @@ Agr_Mes <- function(df,TT,PI,M) #df - data frame; TT - Tens?o; PI - Pot. Instala
   MesAno_ts <- unique(df$MesAno)
   Anos <- year(MesAno_ts)
   
-  ### Para criar novo df que agrega informa??o mensal, df_AM:
+  ### Para criar novo df que agrega informação mensal, df_AM:
   df_AM = data.frame(Ano=Anos,
                      MesAno=MesAno_ts, 
                      Consumo=rowsum(df$Consumo, df$MesAno))
   
   ### Para adicionar coluna ao df_AM com 
-  ### Pot?ncia de tomada (m?x. mensal):
+  ### Potência de tomada (máx. mensal):
   df_AM$Pot_tom <- aggregate(x = df["Activa"], 
                              by = list(month = df$MesAno), 
                              FUN = max)[,2]
   
-  ### Para adicionar coluna ao df_AM com pot?ncia contratada, se BTE:
+  ### Para adicionar coluna ao df_AM com potência contratada, se BTE:
   df_AM$Pot_con <- 0
   
   if (TT == "BTE") {
@@ -39,7 +39,7 @@ Agr_Mes <- function(df,TT,PI,M) #df - data frame; TT - Tens?o; PI - Pot. Instala
   }
   
   if (TT == "MT") {
-    PM = PI*0.93*0.5 # Pot?ncia M?nima
+    PM = PI*0.93*0.5 # Potência Mínima
     for (i in 1:nrow(df_AM))
       if (i <= 12)  {df_AM$Pot_con[i] <- max(PM,df_AM$Pot_tom[1:i])}
     else {df_AM$Pot_con[i] <- max(PM,df_AM$Pot_tom[(i-11):i])}
@@ -50,11 +50,11 @@ Agr_Mes <- function(df,TT,PI,M) #df - data frame; TT - Tens?o; PI - Pot. Instala
   return(df_AM)
 }
 
-Agr_Mes_HP <- function(df,TT,PI,M) #df - data frame; TT - Tens?o; PI - Pot. Instalada (MT); M - m?s do relat?rio
+Agr_Mes_HP <- function(df,TT,PI,M) #df - data frame; TT - Tensão; PI - Pot. Instalada (MT); M - mês do relatório
 {  
   df_AM = Agr_Mes(df,TT,PI,M)
   
-  ### Criar df com hist?rico ultimos 2 anos mais o presente at? m?s actual: 
+  ### Criar df com histórico ultimos 2 anos mais o presente até mês actual: 
   HIST <- df_AM[df_AM$Ano %in% c(last(df_AM$Ano)-2,
                                  last(df_AM$Ano)-1,
                                  last(df_AM$Ano)), ]
@@ -69,19 +69,19 @@ Agr_Mes_HP <- function(df,TT,PI,M) #df - data frame; TT - Tens?o; PI - Pot. Inst
   
   
   
-  ### Criar df para previs?o do restante ano actual:
+  ### Criar df para previsão do restante ano actual:
   PREV <- data.frame(matrix(nrow = MF, ncol = ncol(HIST)))
   names(PREV) <- names(HIST)
   
-  ### Caso exista previs?o, cria vector Meses_anos_mis com anos e meses em 
-  ### portugu?s para meses inclu?dos na previs?o (restantes do ano):
+  ### Caso exista previsão, cria vector Meses_anos_mis com anos e meses em 
+  ### português para meses incluídos na previsão (restantes do ano):
   if (MF != 0) {
     PREV[,2] <- last(HIST$MesAno) + seq(1/12,MF/12,1/12)
     PREV[,1] <- last(HIST$Ano)
     
     PM = month(HIST[1,2])
     
-    # AQUI INSERIR ALGORITMO DE PREVIS?O
+    # AQUI INSERIR ALGORITMO DE PREVISÃO
     if (AA != 0) {PREV[,3] <- forecast(HIST,AA,MF,PM)}
     else {PREV[,3] <- last(HIST[,3])}
     PREV[,4] <- last(HIST[,4])
@@ -92,23 +92,23 @@ Agr_Mes_HP <- function(df,TT,PI,M) #df - data frame; TT - Tens?o; PI - Pot. Inst
     }
   }
   
-  ### Agrega ambos os data data frames (hist?rico e previs?o) num s?:
+  ### Agrega ambos os data data frames (histórico e previsão) num só:
   df_AM_HP <- rbind(HIST,PREV)
   
-  ### Criar vector que identifica se entrada ? 
-  ### Hist?rico, H = -1, ou Previs?o, P = 1 (auxiliar para gr?fico G1):
+  ### Criar vector que identifica se entrada é 
+  ### Histórico, H = -1, ou Previsão, P = 1 (auxiliar para gráfico G1):
   HoP <- vector(mode = "character",length = nrow(df_AM_HP))
   HoP[1:nrow(HIST)] <- -1
   if (MF != 0) {HoP[(nrow(HIST)+1):nrow(df_AM_HP)] <- 1}
   
-  ### Criar vector com consumo do ?ltimo m?s hist?rico
-  ### e primeiro m?s de previs?o (auxiliar para gr?fico G1):
+  ### Criar vector com consumo do último mês histórico
+  ### e primeiro mês de previsão (auxiliar para gráfico G1):
   Trans <- vector(mode = "numeric",length = nrow(df_AM_HP))
   if (MF != 0) {Trans[nrow(HIST):(nrow(HIST)+1)] <- 
     df_AM_HP[nrow(HIST):(nrow(HIST)+1),3]}
   
-  ### Criar vector que identifica (1) ?ltimo m?s hist?rico
-  ### e primeiro m?s de previs?o (auxiliar para gr?fico G1):
+  ### Criar vector que identifica (1) último mês histórico
+  ### e primeiro mês de previsão (auxiliar para gráfico G1):
   GAP <- vector(mode = "character",length = nrow(df_AM_HP))
   if (MF != 0) {GAP[nrow(HIST):(nrow(HIST)+1)] <- 1}
   
@@ -127,29 +127,29 @@ forecast <- function(HIST,AA,MF,PM) {
   Y = last(HIST[,1])
   SA = rowsum(HIST$Consumo,HIST$Ano)
   
-  a = 0.62   # h? um ano
-  b = 0.10   # h? um m?s
-  c = 0   # h? dois meses
-  d = 0   # h? tr?s meses
-  e = 0.005   # total anual h? dois anos
-  f = 0.01   # total anual h? um ano
-  g = 0    # OPT # r?cio entre somat?rio anual at? m?s em quest?o e per?odo hom?logo
+  a = 0.62   # há um ano
+  b = 0.10   # há um mês
+  c = 0   # há dois meses
+  d = 0   # há três meses
+  e = 0.005   # total anual há dois anos
+  f = 0.01   # total anual há um ano
+  g = 0    # OPT # rácio entre somatório anual até mês em questão e período homólogo
   
-  # Previs?o ?ptima combinada entre TeatSLuiz, CastSaoJor e MuseuJuPom:
-  # a = 0.48   # h? um ano
-  # b = 0.18   # h? um m?s
-  # c = 0.08   # h? dois meses
-  # d = 0.05   # h? tr?s meses
-  # e = 0.005   # total anual h? dois anos
-  # f = 0.01   # total anual h? um ano
-  # g = 0.35    # OPT # r?cio entre somat?rio anual at? m?s em quest?o e per?odo hom?logo
+  # Previsão óptima combinada entre TeatSLuiz, CastSaoJor e MuseuJuPom:
+  # a = 0.48   # há um ano
+  # b = 0.18   # há um mês
+  # c = 0.08   # há dois meses
+  # d = 0.05   # há três meses
+  # e = 0.005   # total anual há dois anos
+  # f = 0.01   # total anual há um ano
+  # g = 0.35    # OPT # rácio entre somatório anual até mês em questão e período homólogo
   
-  # Previs?o perfeita para 2017 em casos em que consumo anual aumentou (TeatSLuiz, CastSaoJor)
-  # N?o tinha o coeficiente "e".
-  # a = 0.62   # h? um ano
-  # b = 0.1   # h? um m?s
-  # c = 0.005   # total anual h? dois anos
-  # d = 0.01   # total anual h? um ano
+  # Previsão perfeita para 2017 em casos em que consumo anual aumentou (TeatSLuiz, CastSaoJor)
+  # Não tinha o coeficiente "e".
+  # a = 0.62   # há um ano
+  # b = 0.1   # há um mês
+  # c = 0.005   # total anual há dois anos
+  # d = 0.01   # total anual há um ano
   
   
   PREV = rep(0,MF)
@@ -200,7 +200,7 @@ forecast <- function(HIST,AA,MF,PM) {
 
 
 
-### Fun??o que agrega dados de consumo por dia com tipologia:
+### Função que agrega dados de consumo por dia com tipologia:
 Agr_Dia_USDF <- function(df,M)
 {
   ### Para criar uma nova coluna no df com a energia consumida, em kWh:
@@ -209,29 +209,29 @@ Agr_Dia_USDF <- function(df,M)
   ### Para criar uma nova coluna no df com o registo do dia:
   df$Dia <- as.Date(cut(df$timestamp, breaks = "day"))
   
-  ### Para cortar ao m?s M para o qual se pretende o relat?rio:
+  ### Para cortar ao mês M para o qual se pretende o relatório:
   df = df[!(substr(df$Dia,1,7) > M),]
   
-  ### Para obter os dias (sem repeti??es) que figuram no df (data frame):
+  ### Para obter os dias (sem repetições) que figuram no df (data frame):
   Dias_ts <- unique(df$Dia)
   
-  ### Para criar novo df que agrega informa??o di?ria, df_agg_d:
+  ### Para criar novo df que agrega informação diária, df_agg_d:
   df_agg_d = data.frame(Dia=Dias_ts, 
                         Consumo=rowsum(df$Consumo, df$Dia))
   df_agg_d$Mes <- format.Date(cut(df_agg_d$Dia, breaks = "month"), format = "%Y-%m")
   
-  ### Criar vector coluna com o weekday (1 - 2? feira, 7 - Domingo):
+  ### Criar vector coluna com o weekday (1 - 2ª feira, 7 - Domingo):
   Wdy <- wday(df_agg_d$Dia,week_start = 1)
   
   ### Criar vector coluna com TRUE/FALSE se for feriado:
-  source("R Functions/Outros/Calendar.R")
+  source("Calendar.R")
   Fer <- isFeriado(df_agg_d$Dia)
   
   ### Adicionar ao df coluna com tipologia USDF:
   USDF <- vector(mode = "character",length = length(Wdy))
-  USDF[(Wdy < 6) & (Fer == FALSE)] <- "U"  #Dias ?teis
+  USDF[(Wdy < 6) & (Fer == FALSE)] <- "U"  #Dias úteis
   USDF[(Wdy < 6) & (Fer == TRUE)] <- "F"   #Feriados
-  USDF[(Wdy == 6)] <- "S"                  #S?bados
+  USDF[(Wdy == 6)] <- "S"                  #Sábados
   USDF[(Wdy == 7)] <- "D"                  #Domingos
   df_agg_d$USDF <- USDF
   df_agg_d$WDAY <- Wdy
@@ -239,66 +239,66 @@ Agr_Dia_USDF <- function(df,M)
   return(df_agg_d)
 }
 
-### Fun??o que agrega dados de consumo "normalizados "associados 
-### aos ?ltimos 12 meses e 12 meses hom?logos anteriores:
+### Função que agrega dados de consumo "normalizados "associados 
+### aos últimos 12 meses e 12 meses homólogos anteriores:
 Agr_Mes_12Hom <- function(df,M)
 {
   df_agg_d <- Agr_Dia_USDF(df,M)
   
-  ### Agregar Consumo por tipologia primeiro e depois por m?s:
+  ### Agregar Consumo por tipologia primeiro e depois por mês:
   AUX <- aggregate(x = df_agg_d["Consumo"], 
                    by = list(df_agg_d$USDF,df_agg_d$Mes), 
                    FUN = sum)
   
-  ### Agregar Dias (Nr.) por tipologia primeiro e depois por m?s:
+  ### Agregar Dias (Nr.) por tipologia primeiro e depois por mês:
   AUX1 <- aggregate(x = df_agg_d["Dia"], 
                     by = list(df_agg_d$USDF,df_agg_d$Mes), 
                     FUN = length)
   
-  ### Criar df com informa??o agregada por m?s e tipologia:
+  ### Criar df com informação agregada por mês e tipologia:
   df_agg_m_t = data.frame(Mes=AUX$Group.2,                 #Mes (AAAA-MM)
                           USDF=AUX$Group.1,                #Tipologia USDF
                           Count=AUX1$Dia,                  #Count - Nr. de dias por tipologia
-                          Consumo=AUX$Consumo,             #Consumo por m?s e tipologia
-                          Pot_m=AUX$Consumo/(AUX1$Dia*24)) #Pot?ncia m?dia por m?s e tipologia (1 dia - 24 horas)
+                          Consumo=AUX$Consumo,             #Consumo por mês e tipologia
+                          Pot_m=AUX$Consumo/(AUX1$Dia*24)) #Potência média por mês e tipologia (1 dia - 24 horas)
   
-  ### Para filtrar o df anterior apenas aos 24 ?ltimos meses (12 ?ltimos
-  ### + 12 hom?logos anteriores ? preciso criar um vector com os 
-  ### meses presentes no df (sem repeti??o):
+  ### Para filtrar o df anterior apenas aos 24 últimos meses (12 últimos
+  ### + 12 homólogos anteriores é preciso criar um vector com os 
+  ### meses presentes no df (sem repetição):
   M_unique = unique(as.character(df_agg_m_t$Mes))
   
-  ### Vector com os ?ltimos 24 meses (12 ?ltimos + 12 hom?logos anteriores):
+  ### Vector com os últimos 24 meses (12 últimos + 12 homólogos anteriores):
   M_12Hom = M_unique[(length(M_unique)-23):length(M_unique)]
   
-  ### Df filtrado com os dados apenas para os ?ltimos 24 meses:
+  ### Df filtrado com os dados apenas para os últimos 24 meses:
   df_agg_m_t_12Hom = df_agg_m_t[df_agg_m_t$Mes %in% M_12Hom,]
   
-  ### Calcular a m?dia de dias por tipologia nestes 24 meses (4 valores):
+  ### Calcular a média de dias por tipologia nestes 24 meses (4 valores):
   Count_t = rowsum(df_agg_m_t_12Hom$Count, df_agg_m_t_12Hom$USDF)/24 #24 meses
   
-  ### Atribuir estes 4 valores m?dios a cada tipologia no df criado:
+  ### Atribuir estes 4 valores médios a cada tipologia no df criado:
   df_agg_m_t_12Hom[,"Count_m"] = NA
   df_agg_m_t_12Hom[(df_agg_m_t_12Hom$USDF == "D"),6] = Count_t[1]
   df_agg_m_t_12Hom[(df_agg_m_t_12Hom$USDF == "F"),6] = Count_t[2]
   df_agg_m_t_12Hom[(df_agg_m_t_12Hom$USDF == "S"),6] = Count_t[3]
   df_agg_m_t_12Hom[(df_agg_m_t_12Hom$USDF == "U"),6] = Count_t[4]
   
-  ### Aqui ? calculado consumo m?dio "normalizado" (kWh) sobre 24 meses 
-  ### por m?s e por tipologia, que ? o n?mero de horas (dias x 24 h) m?dio
-  ### multiplicado pela pot?ncia m?dia desse m?s (kW):
+  ### Aqui é calculado consumo médio "normalizado" (kWh) sobre 24 meses 
+  ### por mês e por tipologia, que é o número de horas (dias x 24 h) médio
+  ### multiplicado pela potência média desse mês (kW):
   df_agg_m_t_12Hom[,"Consumo_m"] = df_agg_m_t_12Hom[,5]*df_agg_m_t_12Hom[,6]*24
   
-  ### Para obter um vector com os meses em PT, para o eixo x dos gr?ficos:
-  source("R Functions/Outros/Meses_pt.R") 
+  ### Para obter um vector com os meses em PT, para o eixo x dos gráficos:
+  source("Meses_pt.R") 
   #Meses_str <- Meses_pt(as.Date(paste0(M_12Hom,"-01")))
   #Meses_vec <- format.Date(paste0(M_12Hom,"-01"),format="%Y-%m")
   Meses_vec <- month(as.Date(paste0(M_12Hom,"-01")))
   
-  ### Vector que identifica se estamos no ano presente (1) ou hom?logo anterior (-1)
+  ### Vector que identifica se estamos no ano presente (1) ou homólogo anterior (-1)
   PoH = vector(); PoH[13:24] = "-1"; PoH[1:12] = "1"
   
   ### De seguida, agregam-se consumos "normalizados" por tipologia para obter
-  ### os consumos "m?dios"normalizados" mensais finais (kWh):
+  ### os consumos "médios"normalizados" mensais finais (kWh):
   df_agg_m_12Hom = data.frame(Mes=Meses_vec,
                               PoH=PoH,
                               Consumo=rowsum(df_agg_m_t_12Hom$Consumo, df_agg_m_t_12Hom$Mes),
@@ -307,25 +307,25 @@ Agr_Mes_12Hom <- function(df,M)
   return(df_agg_m_12Hom)
 }
 
-### Fun??o que associa tipologia aos dados de pot?ncia em quarto hor?rio, para m?s M:
+### Função que associa tipologia aos dados de potência em quarto horário, para mês M:
 USDF_M <- function(df,M)
 {
   df <- Corta_Mes(df,M)
   
   df = df[,1:2]
   
-  ### Criar vector coluna com o weekday (1 - 2? feira, 7 - Domingo):
+  ### Criar vector coluna com o weekday (1 - 2ª feira, 7 - Domingo):
   Wdy <- wday(df$timestamp,week_start = 1)
   
   ### Criar vector coluna com TRUE/FALSE se for feriado:
-  source("R Functions/Outros/Calendar.R")
+  source("Calendar.R")
   Fer <- isFeriado(df$timestamp)
   
   ### Adicionar ao df coluna com tipologia USDF:
   USDF <- vector(mode = "character",length = length(Wdy))
-  USDF[(Wdy < 6) & (Fer == FALSE)] <- "U"  #Dias ?teis
+  USDF[(Wdy < 6) & (Fer == FALSE)] <- "U"  #Dias úteis
   USDF[(Wdy < 6) & (Fer == TRUE)] <- "F"   #Feriados
-  USDF[(Wdy == 6)] <- "S"                  #S?bados
+  USDF[(Wdy == 6)] <- "S"                  #Sábados
   USDF[(Wdy == 7)] <- "D"                  #Domingos
   df$USDF <- USDF
   df$WDAY <- Wdy
@@ -336,8 +336,8 @@ USDF_M <- function(df,M)
   return(df)
 }
 
-### Fun??o que separa dia de horas, minutos e segundos para os dados de pot?ncia 
-### em quarto hor?rio, para m?s M:
+### Função que separa dia de horas, minutos e segundos para os dados de potência 
+### em quarto horário, para mês M:
 D_HMS_M <- function(df,M)
 {
   df <- Corta_Mes(df,M)
@@ -350,32 +350,32 @@ D_HMS_M <- function(df,M)
   return(df)
 }
 
-### Fun??o que devolve ?ltimo m?s completo (i.e., tem todos os quarto hor?rios)
+### Função que devolve último mês completo (i.e., tem todos os quarto horários)
 ### presente no data frame convertido ao formato standard, RegInst:
 U_MONTH <- function(df)
 {
   return(format(as.yearmon(last(df[,1])), "%Y-%m"))
   
-  # UM = as.numeric(format(last(df[,1]),"%m"))     # ?ltimo m?s (m?s da ?ltima entrada no df)
-  # UMS = paste0("0",UM)    # ?ltimo m?s em string
-  # MAS = paste0("0",UM-1)  # M?s anterior em string
-  # UA = as.numeric(format(last(df[,1]),"%Y"))     # ?ltimo ano (ano da ?ltima entrada no df)
-  # {if (UM != 12) PM = UM + 1 else if (UM == 12) PM = 1}  # Pr?ximo m?s
-  # UQM = as.POSIXlt(format.Date(paste0(UA,"-",PM,"-01"), "%Y-%m-%d %H:%M:%S"))-15*60   # ?ltimo dia do ?ltimo m?s, ?s 23:45.
-  # if (last(df[,1]) == UQM)  # Se o ?ltimo dia no df for igual ao ?ltimo dia desse m?s...
-  # { return(paste0(UA,"-",substr(UMS,nchar(UMS)-1,nchar(UMS))))  # Devolve m?s da ?ltima entrada do df
+  # UM = as.numeric(format(last(df[,1]),"%m"))     # Último mês (mês da última entrada no df)
+  # UMS = paste0("0",UM)    # Último mês em string
+  # MAS = paste0("0",UM-1)  # Mês anterior em string
+  # UA = as.numeric(format(last(df[,1]),"%Y"))     # Último ano (ano da última entrada no df)
+  # {if (UM != 12) PM = UM + 1 else if (UM == 12) PM = 1}  # Próximo mês
+  # UQM = as.POSIXlt(format.Date(paste0(UA,"-",PM,"-01"), "%Y-%m-%d %H:%M:%S"))-15*60   # Último dia do último mês, às 23:45.
+  # if (last(df[,1]) == UQM)  # Se o último dia no df for igual ao último dia desse mês...
+  # { return(paste0(UA,"-",substr(UMS,nchar(UMS)-1,nchar(UMS))))  # Devolve mês da última entrada do df
   # } else
-  # { {if (UM != 1) return(paste0(UA,"-",substr(MAS,nchar(MAS)-1,nchar(MAS)))) else if (UM == 1) return(paste0(UA-1,"-",12))}  # Devolve m?s anterior
+  # { {if (UM != 1) return(paste0(UA,"-",substr(MAS,nchar(MAS)-1,nchar(MAS)))) else if (UM == 1) return(paste0(UA-1,"-",12))}  # Devolve mês anterior
   # }
 }
 
-### Fun??o que devolve os meses hom?logos anterior e um ano anterior, com base no m?s M:
+### Função que devolve os meses homólogos anterior e um ano anterior, com base no mês M:
 M_HOM <- function(M)
 {
   return(list(format(as.yearmon(M)-1/12, "%Y-%m"),
               format(as.yearmon(M)-1, "%Y-%m")))
   
-  # ### M?s hom?logo anterior:
+  # ### Mês homólogo anterior:
   # Nr_M = as.numeric(substr(M,6,7))
   # Nr_M_Hom1 = paste0("0",as.character(Nr_M - 1))
   # if (Nr_M != 1) {
@@ -384,21 +384,21 @@ M_HOM <- function(M)
   #   M_Hom1 = paste0(as.numeric(substr(M,1,4))-1,"-12")
   # }
   # 
-  # ### M?s hom?logo do ano anterior:
+  # ### Mês homólogo do ano anterior:
   # M_Hom12 = paste0(as.numeric(substr(M,1,4))-1,substr(M,5,7))
   # 
   # return(list(M_Hom1,M_Hom12))
 }
 
-### Fun??o que corta o df com quarto hor?rios apenas ao m?s pretendido:
+### Função que corta o df com quarto horários apenas ao mês pretendido:
 Corta_Mes <- function(df,M)
 {
   df <- df[as.yearmon(df[,1]) == as.yearmon(M),]
   
-  # ### Para criar uma nova coluna auxiliar no df com o registo do m?s:
+  # ### Para criar uma nova coluna auxiliar no df com o registo do mês:
   # df$Meses <- as.Date(cut(df$timestamp, breaks = "month"))
   # 
-  # ### Filtra e de seguida remove a coluna auxiliar com m?s:
+  # ### Filtra e de seguida remove a coluna auxiliar com mês:
   # df <- df[df$Meses == paste0(M,"-01"),]
   # df <- df[,1:4]
 }

@@ -3,7 +3,8 @@
 #*Ficheiro que contem as funcoes para fazer conversao de ficheiros BTE*#
 #**********************************************************************#
 ########################################################################
-source("R Functions/Outros/Calendar.R")
+source("Calendar.R")
+
 #Funcao que permite inserir uma linha num determinado indice de uma Data Frame
 insertRow <- function(existingDF, newrow, index) {
   existingDF[seq(index+1,nrow(existingDF)+1),] <- existingDF[seq(index,nrow(existingDF)),]
@@ -50,13 +51,13 @@ convertBTE <- function(cil) {
   colnames(bteDF) <- c("timestamp","Activa","Indutiva","Capacitiva")
   row.names(bteDF) <- 1:nrow(bteDF)
   
-  ### Remove ?ltimo m?s se incompleto
+  ### Remove último mês se incompleto
   if (as.POSIXlt(last(bteDF[,1]), tz = "UTC") != 
       as.POSIXlt(as.yearmon(last(bteDF[,1]))+1/12, tz = "UTC")-15*60) {
     bteDF = bteDF[as.yearmon(bteDF[,1]) != as.yearmon(last(bteDF[,1])),]
   }
   
-  ### Remove primeiro m?s se incompleto
+  ### Remove primeiro mês se incompleto
   if (as.POSIXlt(bteDF[1,1], tz = "UTC") != 
       as.POSIXlt(as.yearmon(bteDF[1,1]), tz = "UTC") &&
       as.POSIXlt(bteDF[1,1], tz = "UTC") != 
@@ -105,13 +106,13 @@ convertADP <- function(CPE) {
   colnames(bteDF) <- c("timestamp","Activa","Indutiva","Capacitiva")
   row.names(bteDF) <- 1:nrow(bteDF)
   
-  ### Remove ?ltimo m?s se incompleto
+  ### Remove último mês se incompleto
   if (as.POSIXlt(last(bteDF[,1]), tz = "UTC") != 
       as.POSIXlt(as.yearmon(last(bteDF[,1]))+1/12, tz = "UTC")-15*60) {
     bteDF = bteDF[as.yearmon(bteDF[,1]) != as.yearmon(last(bteDF[,1])),]
   }
   
-  ### Remove primeiro m?s se incompleto
+  ### Remove primeiro mês se incompleto
   if (as.POSIXlt(bteDF[1,1], tz = "UTC") != 
       as.POSIXlt(as.yearmon(bteDF[1,1]), tz = "UTC") &&
       as.POSIXlt(bteDF[1,1], tz = "UTC") != 

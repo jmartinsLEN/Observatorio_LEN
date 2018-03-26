@@ -1,5 +1,6 @@
-source("R Functions/Outros/Variaveis_tarifas.R")
-source("R Functions/Outros/Calendar.R")
+source("Variaveis_tarifas.R")
+source("Calendar.R")
+
 ########################################################
 #******************************************************#
 #********************Funcoes***************************#
@@ -586,7 +587,7 @@ buildFatura <- function(df, consumoDF, TT, PI) {
   return(fatura)
 }
 
-### Fun??o usada no G5:
+### Função usada no G5:
 build_pUnitario <- function(df, consumoDF, faturaDF, TT, anoMes) {
   mes <- as.numeric(strsplit(anoMes,"-")[[1]][2])
   ano <- as.numeric(strsplit(anoMes,"-")[[1]][1])
