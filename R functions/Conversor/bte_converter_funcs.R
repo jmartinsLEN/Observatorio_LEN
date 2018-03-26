@@ -3,8 +3,7 @@
 #*Ficheiro que contem as funcoes para fazer conversao de ficheiros BTE*#
 #**********************************************************************#
 ########################################################################
-source("Calendar.R")
-
+source("R Functions/Outros/Calendar.R")
 #Funcao que permite inserir uma linha num determinado indice de uma Data Frame
 insertRow <- function(existingDF, newrow, index) {
   existingDF[seq(index+1,nrow(existingDF)+1),] <- existingDF[seq(index,nrow(existingDF)),]

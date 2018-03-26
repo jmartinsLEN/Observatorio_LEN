@@ -18,14 +18,14 @@ library(gridExtra)
 setwd("~/Observatorio_R/observatorio_r")
 source("R functions/Outros/Meses_pt.R")
 
-
+##### TESTE
 
 ### Inserir c?digo da instala??o.
 CodInst <- "MuseuJuPom"
 CodInst <- "TeatSLuiz"
 CIL <- "XXXXXXXXX"
 
-### Inserir data inicial e final para a análise.
+### Inserir data inicial e final para a an?lise.
 ### Formato: "MM/DD/AAAA"
 
 Dia_i <- "01/01/2017"
@@ -50,7 +50,7 @@ RegInstCineSJorge <- convertMT("6518567")
 RegInstTeatAberto <- convertMT("8320094")
 RegInstTeatSLuiz <- convertMT("10311278")
 
-### Isto serviu para adicionar Janeiro e Fevereiro de 2018 à base de dados,
+### Isto serviu para adicionar Janeiro e Fevereiro de 2018 ? base de dados,
 ### a partir dos dados de MT do ficheiro "Dados" do R.
 for (i in 1:nrow(df_ToReport)) {
   if (df_ToReport$TT[i] == "BTE") {
