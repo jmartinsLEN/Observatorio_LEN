@@ -25,7 +25,7 @@ CodInst <- "MuseuJuPom"
 CodInst <- "TeatSLuiz"
 CIL <- "XXXXXXXXX"
 
-### Inserir data inicial e final para a an?lise.
+### Inserir data inicial e final para a análise.
 ### Formato: "MM/DD/AAAA"
 
 Dia_i <- "01/01/2017"
