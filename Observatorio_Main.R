@@ -20,12 +20,12 @@ source("R functions/Outros/Meses_pt.R")
 
 ##### TESTE
 
-### Inserir c?digo da instala??o.
+### Inserir código da instalação.
 CodInst <- "MuseuJuPom"
 CodInst <- "TeatSLuiz"
 CIL <- "XXXXXXXXX"
 
-### Inserir data inicial e final para a an?lise.
+### Inserir data inicial e final para a análise.
 ### Formato: "MM/DD/AAAA"
 
 Dia_i <- "01/01/2017"
@@ -50,7 +50,7 @@ RegInstCineSJorge <- convertMT("6518567")
 RegInstTeatAberto <- convertMT("8320094")
 RegInstTeatSLuiz <- convertMT("10311278")
 
-### Isto serviu para adicionar Janeiro e Fevereiro de 2018 ? base de dados,
+### Isto serviu para adicionar Janeiro e Fevereiro de 2018 à base de dados,
 ### a partir dos dados de MT do ficheiro "Dados" do R.
 for (i in 1:nrow(df_ToReport)) {
   if (df_ToReport$TT[i] == "BTE") {
@@ -74,7 +74,7 @@ RegInst = convertADP(df_ToReport$CPE[25])
 InsDB(df_ToReport$CodInst[25],RegInst)
 
 
-### Caso tabela n?o exista ainda na DB, criar usando fun??o seguinte:
+### Caso tabela não exista ainda na DB, criar usando função seguinte:
 CreateTableDB(df_ToReport$CodInst[25])
 
 
@@ -113,7 +113,7 @@ source("R functions/Ligacao DB/UploadDataToDB.R")
 UplDB(CodInst,RegInst_d)
 
 ### Para carregar os dados da base de dados LEN:    
-### Utilizando source, aten??o ao direct?rio caso
+### Utilizando source, aten??o ao directório caso
 ### o script esteja numa pasta diferente.
 
 source("R functions/Ligacao DB/ImportDatafromDB.R")
@@ -135,7 +135,7 @@ df_ToReport = data.frame(
 
 
 
-### Para obter um data frame com informa??o agregada por m?s:
+### Para obter um data frame com informa??o agregada por mês:
 
 source("R functions/Processamento/DataProcessing.R")
 
