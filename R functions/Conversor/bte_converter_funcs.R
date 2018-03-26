@@ -51,13 +51,13 @@ convertBTE <- function(cil) {
   colnames(bteDF) <- c("timestamp","Activa","Indutiva","Capacitiva")
   row.names(bteDF) <- 1:nrow(bteDF)
   
-  ### Remove último mês se incompleto
+  ### Remove ?ltimo m?s se incompleto
   if (as.POSIXlt(last(bteDF[,1]), tz = "UTC") != 
       as.POSIXlt(as.yearmon(last(bteDF[,1]))+1/12, tz = "UTC")-15*60) {
     bteDF = bteDF[as.yearmon(bteDF[,1]) != as.yearmon(last(bteDF[,1])),]
   }
   
-  ### Remove primeiro mês se incompleto
+  ### Remove primeiro m?s se incompleto
   if (as.POSIXlt(bteDF[1,1], tz = "UTC") != 
       as.POSIXlt(as.yearmon(bteDF[1,1]), tz = "UTC") &&
       as.POSIXlt(bteDF[1,1], tz = "UTC") != 
@@ -106,13 +106,13 @@ convertADP <- function(CPE) {
   colnames(bteDF) <- c("timestamp","Activa","Indutiva","Capacitiva")
   row.names(bteDF) <- 1:nrow(bteDF)
   
-  ### Remove último mês se incompleto
+  ### Remove ?ltimo m?s se incompleto
   if (as.POSIXlt(last(bteDF[,1]), tz = "UTC") != 
       as.POSIXlt(as.yearmon(last(bteDF[,1]))+1/12, tz = "UTC")-15*60) {
     bteDF = bteDF[as.yearmon(bteDF[,1]) != as.yearmon(last(bteDF[,1])),]
   }
   
-  ### Remove primeiro mês se incompleto
+  ### Remove primeiro m?s se incompleto
   if (as.POSIXlt(bteDF[1,1], tz = "UTC") != 
       as.POSIXlt(as.yearmon(bteDF[1,1]), tz = "UTC") &&
       as.POSIXlt(bteDF[1,1], tz = "UTC") != 
