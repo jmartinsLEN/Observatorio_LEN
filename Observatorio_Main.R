@@ -50,7 +50,7 @@ RegInstCineSJorge <- convertMT("6518567")
 RegInstTeatAberto <- convertMT("8320094")
 RegInstTeatSLuiz <- convertMT("10311278")
 
-### Isto serviu para adicionar Janeiro e Fevereiro de 2018 ? base de dados,
+### Isto serviu para adicionar Janeiro e Fevereiro de 2018 à base de dados,
 ### a partir dos dados de MT do ficheiro "Dados" do R.
 for (i in 1:nrow(df_ToReport)) {
   if (df_ToReport$TT[i] == "BTE") {
