@@ -15,33 +15,32 @@ library(ggrepel)
 library(zoo)
 library(bindrcpp)
 library(gridExtra)
-setwd("~/Observatorio_R/observatorio_r")
 source("R functions/Outros/Meses_pt.R")
+setwd("~/Observatorio_R/observatorio_r")
 
-##### TESTE
 
-### Inserir código da instalação.
-CodInst <- "MuseuJuPom"
-CodInst <- "TeatSLuiz"
-CIL <- "XXXXXXXXX"
 
-### Inserir data inicial e final para a análise.
-### Formato: "MM/DD/AAAA"
 
-Dia_i <- "01/01/2017"
-Dia_f <- "01/01/2018"
-
-### Para converter os dados em formato standard:
-
-source("R functions/Conversor/DataConverter.R")
+##############################################################################
+########################  IMPORTAR E CONVERTER DADOS  ########################
+##############################################################################
+###                                                                        ###
+### Importar dados de ficheiros de telecontagem provenientes da EDP ou do  ###
+### cliente. Converter dados no formato aplicável para esta aplicação.     ###
+###                                                                        ###
+##############################################################################
 source("R functions/Conversor/bte_converter_funcs.R")
 source("R functions/Conversor/mt_converter_funcs.R")
+
+### Para converter os dados em formato standard (RegInst - Registo de consumos
+### em quarto horário da instalação, utilizar CIL como input):
+RegInst <- convertBTE(cil)  # Caso instalação seja BTE
+RegInst <- convertMT(cil)   # Caso instalação seja MT
 
 RegInst <- convertBTE("3874085")  #MuseuJuPom
 RegInst <- convertBTE("8509886")  #BiblioCoru
 RegInst <- convertMT("10311278")  #TeatSLuiz
 RegInst <- convertMT("6517365")   #MUDE
-
 
 RegInstMUDE <- convertMT("6517365")
 RegInstDepositoPB <- convertMT("6517604")
@@ -50,78 +49,43 @@ RegInstCineSJorge <- convertMT("6518567")
 RegInstTeatAberto <- convertMT("8320094")
 RegInstTeatSLuiz <- convertMT("10311278")
 
-### Isto serviu para adicionar Janeiro e Fevereiro de 2018 à base de dados,
-### a partir dos dados de MT do ficheiro "Dados" do R.
-for (i in 1:nrow(df_ToReport)) {
-  if (df_ToReport$TT[i] == "BTE") {
-    RegInst = convertBTE(df_ToReport$CIL[i])
-    
-    RegInst <- RegInst[as.yearmon(RegInst[,1]) == "Feb 2018" |
-                         as.yearmon(RegInst[,1]) == "Jan 2018",]
+### Para converter dados provenientes da empresa ADP (utilizar CPE como input):
+RegInst = convertADP(CPE)
 
-    InsDB(df_ToReport$CodInst[i],RegInst)
-    
-  }
-  
-  
-}
-df_ToReport = df_ToReport[c(-4,-5,-7),]
-
-RegInst = convertADP(df_ToReport$CPE[24])
-InsDB(df_ToReport$CodInst[24],RegInst)
-
-RegInst = convertADP(df_ToReport$CPE[25])
-InsDB(df_ToReport$CodInst[25],RegInst)
-
-
-### Caso tabela não exista ainda na DB, criar usando função seguinte:
-CreateTableDB(df_ToReport$CodInst[25])
+##############################################################################
 
 
 
 
-# MUDE	      6517365
-# DepositoPB	6517604
-# TeatMMatos	6518053
-# CineSJorge	6518567
-# TeatAberto	8320094
-# TeatSLuiz 	10311278
-# MuseuJuPom	3874085
-# GabEstOlis	6516815
-# PalacioPim	6517030
-# MuseuBorPi	6517031
-# CastSaoJor	6517110
-# CastSJIlum	6517111
-# CastSJRest	6517112
-# CastSJLuga	6517113
-# PadraoDesc	6518187
-# ArqFotogra	6608114
-# CasaFerPes	6608773
-# TeatTabord	7098362
-# MuseuFado	  7540657
-# MuseuMario	8377474
-# GalAvIndia	8504351
-# BiblioCoru	8509886
-# BiblioOrlR	10113298
-# ArqMunicip	10223918
-
-
-
-### Para actualizar dados na base de dados:
-
+##############################################################################
+#########################  LIGAÇÃO À BASE DE DADOS  ##########################
+##############################################################################
+###                                                                        ###
+### Criar e editar tabelas na base de dados com os dados recolhidos sobre  ###
+### as instalações. Carregar dados da base de dados para a aplicação.      ###
+###                                                                        ###
+##############################################################################
+source("R functions/Ligacao DB/ImportDatafromDB.R")
 source("R functions/Ligacao DB/UploadDataToDB.R")
-UplDB(CodInst,RegInst_d)
+
+### Para actualizar informação na base de dados:
+CreateTableDB(CodInst)   # Criar nova tabela caso não exista
+InsDB(CodInst,RegInst)   # Inserir novos valores na tabela
+UpdDB(CodInst,RegInst)   # Actualizar valores já existentes
 
 ### Para carregar os dados da base de dados LEN:    
-### Utilizando source, aten??o ao directório caso
-### o script esteja numa pasta diferente.
-
-source("R functions/Ligacao DB/ImportDatafromDB.R")
-RegInst_ts = ImpDB_TS(CodInst,Dia_i,Dia_f)
 RegInst = ImpDB(CodInst)
-RegInst = ImpDB("CastSaoJor")
+
+### Para carregar dados numa janela temporal definida por
+### uma data inicial e final (formato: "MM/DD/AAAA")
+RegInst_ts = ImpDB_TS(CodInst,Dia_i,Dia_f)  
+
+### Para carregar a tabela de instalações da base de dados:
 TabInst = ImpTI()
 
+### Para retirar dessa tabela informação relativa às instalações
+### marcadas com um "x" na sua primeira coluna, indicando que 
+### relatório é pretendido:
 df_ToReport = data.frame(
   CodInst = TabInst[TabInst$Relatorio == 1,2],
   Gestao = TabInst[TabInst$Relatorio == 1,3],
@@ -133,41 +97,63 @@ df_ToReport = data.frame(
   NomeInst = TabInst[TabInst$Relatorio == 1,10],
   CPE = TabInst[TabInst$Relatorio == 1,13])
 
+### Esta rotina serviu para adicionar Janeiro e Fevereiro de 2018 
+### à base de dados, a partir dos dados de telecontagem BTE:
+for (i in 1:nrow(df_ToReport)) {
+  if (df_ToReport$TT[i] == "BTE") {
+    RegInst = convertBTE(df_ToReport$CIL[i])
+    RegInst <- RegInst[as.yearmon(RegInst[,1]) == "Feb 2018" |
+                         as.yearmon(RegInst[,1]) == "Jan 2018",]
+    InsDB(df_ToReport$CodInst[i],RegInst)
+  }
+}
+
+##############################################################################
 
 
-### Para obter um data frame com informa??o agregada por mês:
 
+
+##############################################################################
+#############################  PROCESSAR DADOS  ##############################
+##############################################################################
+###                                                                        ###
+### Com base nos dados de consumo, realizar todo o tipo de tratamentos e   ###
+### análises para posterior visualização e inclusão nos relatórios.        ###
+###                                                                        ###
+##############################################################################
 source("R functions/Processamento/DataProcessing.R")
 
-### Sobre que m?s se debru?a este relat?rio (?ltimo m?s com dados completos)?
-M = U_MONTH(RegInst)
-M = "2017-12" #formato desta data M: "AAAA-MM"
-M_Hom1 = M_HOM(M)[[1]]
-M_Hom12 = M_HOM(M)[[2]]
+### Sobre que mês se debruça este relatório (último mês com dados completos)?
+### Formato da data M: "AAAA-MM"
+M = U_MONTH(RegInst)  # Devolver último mês presente nos dados.
+M = "2017-12" 
+M_Hom1 = M_HOM(M)[[1]]   # Mês anterior
+M_Hom12 = M_HOM(M)[[2]]  # Mês homólogo
 
-TT = "BTE" #Gama de tens?o
+### Alguns inputs que podem ser inseridos manualmente ou retirados da base de
+### dados, como descrito na secção anterior:
+TT = "BTE"  # Gama de tensão
 TT = "MT"
-PI = 2500 #Pot. Instalada = 2500 kVA (MT - Teatro S. Luiz)
-
+PI = 2500  # Potência Instalada = 2500 kVA (MT - Teatro S. Luiz)
 AreaCML = "Cultura"
 Gestao = "EGEAC"
 NomeInst = "Teatro S. Luiz"
 
-RegInst_AM = Agr_Mes(RegInst,TT,PI,M)
+RegInst_AM = Agr_Mes(RegInst,TT,PI,M)  # Agregar por mês, histórico completo.
 
-RegInst_AM_HP = Agr_Mes_HP(RegInst,TT,PI,M)
+RegInst_AM_HP = Agr_Mes_HP(RegInst,TT,PI,M)  # Agregar por mês, histórico 3 anos e previsão.
 
-RegInst_AM12 = Agr_Mes_12Hom(RegInst,M)
+RegInst_AM12 = Agr_Mes_12Hom(RegInst,M)  # Agregar por mês último ano e ano homólogo.
 
-RegInst_ADT = Agr_Dia_USDF(RegInst,M)
+RegInst_ADT = Agr_Dia_USDF(RegInst,M)  # Agregar por dia com tipologia.
 
-RegInst_USDF = USDF_M(RegInst,M)
+RegInst_USDF = USDF_M(RegInst,M)  # Associar tipologia aos consumos, apenas um mês.
 
-RegInst_D = D_HMS_M(RegInst,M)
+RegInst_D = D_HMS_M(RegInst,M)  # Desagregar timestamp em dia e horário, apenas um mês.
 
-RegInst_D_Hom1 = D_HMS_M(RegInst,M_Hom1)
+RegInst_D_Hom1 = D_HMS_M(RegInst,M_Hom1)  # Mesmo que anterior.
 
-RegInst_D_Hom12 = D_HMS_M(RegInst,M_Hom12)
+RegInst_D_Hom12 = D_HMS_M(RegInst,M_Hom12)  # Mesmo que anterior.
 
 #--------------- JORGE --------------------#
 source("R functions/Processamento/Tarifas.R")
@@ -180,17 +166,26 @@ consumo <- buildConsumDF(newDFCD, TT, PI)
 fatura <- buildFatura(newDFCD, consumo, TT, PI)
 #------------------------------------------#
 
+##############################################################################
 
 
-### Para obter gr?ficos... :
 
+
+##############################################################################
+#############################  VISUALIZAR DADOS  #############################
+##############################################################################
+###                                                                        ###
+### Com base nos dados processados, gerar diferentes gráficos com a        ###
+### informação útil acerca dos consumos de electricidade das instalações.  ###
+###                                                                        ###
+##############################################################################
 source("R functions/Vizualizacao/DataVisualization.R")
 
 G1_Consumo_Mensal(RegInst_AM_HP)
 
 G2_Consumo_12Hom(RegInst_AM12,TT)
 
-G3_Potencia_Mensal(RegInst_AM_HP,TT) #RegInst_AM tamb?m porque usa os mesmos dados de base
+G3_Potencia_Mensal(RegInst_AM_HP,TT)
 
 G4_Consumo_Anual_PHorario(consumo,fatura,M)
 
@@ -202,58 +197,59 @@ G7_Consumo_Mes(RegInst_ADT,M)
 
 G8_Potencia_D_USDF(RegInst_USDF)
 
-G9 = G9_Potencia_D(RegInst_USDF,"U")  #Gr?fico 9: Perfis de pot?ncia di?rios dos dias ?teis
+G9 = G9_Potencia_D(RegInst_USDF,"U")  #Gráfico 9: Perfis de potência diários dos dias úteis
 
-G10 = G9_Potencia_D(RegInst_USDF,"S") #Gr?fico 10: Perfis de pot?ncia di?rios dos S?bados
+G10 = G9_Potencia_D(RegInst_USDF,"S") #Gráfico 10: Perfis de potência diários dos Sábados
 
-G11 = G9_Potencia_D(RegInst_USDF,"D")  #Gr?fico 11: Perfis de pot?ncia di?rios dos Domingos
+G11 = G9_Potencia_D(RegInst_USDF,"D")  #Gráfico 11: Perfis de potência diários dos Domingos
 
 grid.arrange(G9,G10,G11)
 
-G12_Comp_Hom(RegInst_D,RegInst_D_Hom1)  #Gr?fico 12: M?s hom?logo anterior
+G12_Comp_Hom(RegInst_D,RegInst_D_Hom1)  #Gráfico 12: Mês homólogo anterior
 
-G12_Comp_Hom(RegInst_D,RegInst_D_Hom12) #Gr?fico 13: M?s hom?logo um ano anterior
+G12_Comp_Hom(RegInst_D,RegInst_D_Hom12) #Gráfico 13: Mês homólogo um ano anterior
 
-########################
-### GERAR RELAT?RIOS ###
-########################
-
-CILs = c("3874085",
-         "10311278",
-         "6517110")
-
-CILs = "6517110"
-
-CILs = c("3874085")
-CILs = c("10311278")
-CILs = c("8509886")
-CILs = df_ToReport$CIL[24]
-
-Ano_Mes = c("2017-03","2017-06","2017-09")
+##############################################################################
 
 
+
+
+##############################################################################
+#############################  GERAR RELATÓRIOS  #############################
+##############################################################################
 source("R functions/Gerar relatórios/DoReport.R")
 
-# Passar CILS como 1? argumento, caso se pretenda definir para que 
-# instala??es os relat?rios s?o gerados, caso contr?rio ser?o gerados 
-# relat?rios para todas as instala??es.
+### Algumas variantes de inputs:
+CILs = c("3874085","10311278","6517110")
+CILs = "6517110"
+CILs = "3874085"
+CILs = "10311278"
+CILs = "8509886"
+CILs = df_ToReport$CIL[24]
+Ano_Mes = c("2017-03","2017-06","2017-09")
+
+# Passar CILS como 1º argumento, caso se pretenda definir para que 
+# instalações os relatórios são gerados, caso contrário serão gerados 
+# relatórios para todas as instalações.
 # 
-# Passar Ano-m?s como 2? argumento no formato "AAAA-MM", caso se 
-# pretenda relat?rio para m?s(es) especifico(s). Caso contr?rio relat?rio 
-# ? gerado para o ?ltimo m?s completo presente nos dados respectivos 
-# ? instala??o. V?rios meses usar vector com comando c()
-DoReport(CILs,Ano_Mes = "2017-12")
+# Passar Ano-mês como 2º argumento no formato "AAAA-MM", caso se 
+# pretenda relatório para mês(es) especifico(s). Caso contrário relatório 
+# é gerado para o último mês completo presente nos dados respectivos 
+# à instalação. Vários meses usar vector com comando c()
+DoReport(CILs, Ano_Mes = "2017-12")
 
 
-
+### Gerar um relatório com os dados carregados no Global Environment do R:
 rmarkdown::render("Relatorio_GR.Rmd")
-###
 
-################
-### FORECAST ###
-################
+##############################################################################
 
 
+
+
+##############################################################################
+########################### FORECAST BENCHMARKING ############################
+##############################################################################
 source("R functions/Processamento/DataProcessing.R")
 source("R functions/Outros/Prediction benchmarking.R")
 source("R functions/Ligacao DB/ImportDatafromDB.R")
@@ -270,8 +266,10 @@ MAT_MuseuJuPom = PBM(RegInst)
 
 RegInst = ImpDB("ETAFoTelha");
 MAT_ETAFoTelha = PBM(RegInst)
+
 RegInst = ImpDB("EEOlivais");
 MAT_EEOlivais = PBM(RegInst)
+
 RegInst = ImpDB("EEVilaFran");
 MAT_EEVilaFran = PBM(RegInst)
 
@@ -281,10 +279,16 @@ for (i in 6:23) {
   ListMAT[[i]] = PBM(RegInst)
 }
 ListMAT[[]] 
-#
 
-###
+##############################################################################
 
-defineLegalH()  # hor?rio ver?o inverno...
+
+
+
+##############################################################################
+
+defineLegalH()  # horário verão inverno...
 
 rm(list = ls())
+
+##############################################################################
