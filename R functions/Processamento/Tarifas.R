@@ -1,5 +1,6 @@
 source("R Functions/Outros/Variaveis_tarifas.R")
 source("R Functions/Outros/Calendar.R")
+
 ########################################################
 #******************************************************#
 #********************Funcoes***************************#
@@ -365,12 +366,12 @@ buildConsumDF <- function(df, TT, PI) {
   consumoDF$HP <- HP$hp
   consumoDF$PHP <- round(consumoDF$P/consumoDF$HP, digits = 2)
   ### Para adicionar coluna ao consumoDF com 
-  ### Pot?ncia de tomada (m?x. mensal):
+  ### Potência de tomada (máx. mensal):
   consumoDF$Pot_tom <- aggregate(x = df["Activa"], 
                                  by = list(month = substr(df$timestamp, 1, 7)), 
                                  FUN = max)[,2]
   
-  ### Para adicionar coluna ao consumoDF com pot?ncia contratada:
+  ### Para adicionar coluna ao consumoDF com potência contratada:
   consumoDF$Pot_con <- 0 
   if(TT == "BTE") {
     for (i in 1:length(consumoDF$Pot_tom))
@@ -381,7 +382,7 @@ buildConsumDF <- function(df, TT, PI) {
       consumoDF$Pot_con[i] <- max(41.41,consumoDF$Pot_tom[(i-11):i])
     }
   } else if(TT == "MT") {
-    PM = PI*0.93*0.5 # Pot?ncia M?nima
+    PM = PI*0.93*0.5 # Potência Mínima
     for (i in 1:nrow(consumoDF))
       if (i <= 12)  {
         consumoDF$Pot_con[i] <- max(PM,consumoDF$Pot_tom[1:i])
@@ -586,7 +587,7 @@ buildFatura <- function(df, consumoDF, TT, PI) {
   return(fatura)
 }
 
-### Fun??o usada no G5:
+### Função usada no G5:
 build_pUnitario <- function(df, consumoDF, faturaDF, TT, anoMes) {
   mes <- as.numeric(strsplit(anoMes,"-")[[1]][2])
   ano <- as.numeric(strsplit(anoMes,"-")[[1]][1])
@@ -632,7 +633,7 @@ build_pUnitario <- function(df, consumoDF, faturaDF, TT, anoMes) {
   return(df_output)
 }
 
-### Fun??o usada  no G5:
+### Função usada  no G5:
 calcula_periodo <- function(mes) {
   if(mes >= 1 & mes <= 3) {
     periodo <- 1

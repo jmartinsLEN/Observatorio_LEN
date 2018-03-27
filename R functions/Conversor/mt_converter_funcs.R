@@ -103,7 +103,7 @@ convertMT <- function(cil) {
   colnames(convertedMtDF) <- c("timestamp", "Activa", "Indutiva", "Capacitiva")
   #convertedMtDF$`Data Hora` <- as.POSIXct(convertedMtDF$`Data Hora`, "%d/%m/%Y %H:%M%OS", tz="GMT")
   
-  ### Remove a ?ltima linha do df, referente ? meia noite do dia seguinte:
+  ### Remove a última linha do df, referente à meia noite do dia seguinte:
   convertedMtDF <- head(convertedMtDF,-1)
   
   return(convertedMtDF)

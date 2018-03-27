@@ -1,12 +1,12 @@
 
-### Gráfico 1:  Consumo mensal últimos 2 anos e previsão deste ano
+### GrÃ¡fico 1:  Consumo mensal Ãºltimos 2 anos e previsÃ£o deste ano
 G1_Consumo_Mensal <- function(df)
 {
   if (nrow(df) >= 1 & nrow(df) <= 12) {Xlabel_ano = 30.5}
   else if (nrow(df) > 12 & nrow(df) <= 24) {Xlabel_ano = c(18.5,30.5)}
   else if (nrow(df) > 24 & nrow(df) <= 36) {Xlabel_ano = c(6.5,18.5,30.5)}
   
-  ### Unidades inteligentes que se adaptam à dimensão dos valores:
+  ### Unidades inteligentes que se adaptam Ã  dimensÃ£o dos valores:
   SA = aggregate(df$Consumo, by = list(Ano = df$Ano), FUN = sum)
   
   
@@ -32,8 +32,8 @@ G1_Consumo_Mensal <- function(df)
   # Mes_toplot <- substr(df$Mes_ano,1,nchar(as.character(df$Mes_ano))-5)
   Mes_toplot <- substr(Meses_pt(df$MesAno),1,3)
   
-  ### Obtem a linha da matriz em que ocorre a transição entre histórico
-  ### e previsão, caso haja:
+  ### Obtem a linha da matriz em que ocorre a transiÃ§Ã£o entre histÃ³rico
+  ### e previsÃ£o, caso haja:
   if (max(df$Trans)>0) {Pos = min(which(df$Trans>0))+1}
   
   df[is.na(df$GAP),3:5] =  -1
@@ -42,7 +42,7 @@ G1_Consumo_Mensal <- function(df)
   YMAX = df$Consumo
   YMAX[-seq(2,35,3)] = 0
   
-  ### Um gráfico linear de consumo mensal:
+  ### Um grÃ¡fico linear de consumo mensal:
   g = ggplot(df, aes(x=factor(MesAno),shape = HoP)) +
     geom_line(aes(y=Consumo,group=HoP,colour = HoP,linetype = HoP),size = 1.5) +
     geom_point(aes(y=Consumo,colour = HoP,size=HoP),show.legend = FALSE) +
@@ -57,7 +57,7 @@ G1_Consumo_Mensal <- function(df)
     scale_x_discrete(labels = Mes_toplot,limits=df$Mes_ano,expand = c(0,0.5)) +
     scale_y_continuous(limits = c(0,max(df$Consumo)*1.15),breaks = pretty(c(0,df$Consumo),n = 4),expand = c(0,0)) +
     expand_limits(y=max(df$Consumo)*1.24) +
-    ylab(paste0("Consumo de eletricidade\n[",str_unit,"/mês]")) +
+    ylab(paste0("Consumo de eletricidade\n[",str_unit,"/mÃªs]")) +
     annotate("text",
              x = c(2,14,26),
              y = max(df$Consumo)*1.1,
@@ -85,14 +85,14 @@ G1_Consumo_Mensal <- function(df)
           legend.title = element_blank()) +
     scale_shape_manual(values = c(19, 15))+
     scale_size_manual(values = c(2.5, 0))+
-    scale_colour_discrete(labels=c("Histórico", "Previsão")) +
+    scale_colour_discrete(labels=c("HistÃ³rico", "PrevisÃ£o")) +
     scale_linetype_manual(guide = "none",name = "Linetype",values = c("solid","longdash"))
   
   suppressWarnings(print(g))
   
 }
 
-### Gráfico 2:  Consumo dos 24 últimos meses (12 + 12 homólogos)
+### GrÃ¡fico 2:  Consumo dos 24 Ãºltimos meses (12 + 12 homÃ³logos)
 G2_Consumo_12Hom <- function(df,TT)
 {
   
@@ -104,8 +104,8 @@ G2_Consumo_12Hom <- function(df,TT)
   Mes_toaxis <- row.names(df)[1:12]
   
   ### Definir strings para a legenda:
-  LL = c("Últimos 12 meses", "Período homólogo") #label da legenda
-  YMIN = min(df$Consumo_m) # valor mínimo de consumo "normalizado"
+  LL = c("Ãšltimos 12 meses", "PerÃ­odo homÃ³logo") #label da legenda
+  YMIN = min(df$Consumo_m) # valor mÃ­nimo de consumo "normalizado"
   
   YMAX = c(YMIN*0.98/0.97,pmax(df$Consumo_m[2:11],df$Consumo_m[14:23]),YMIN*0.98/0.97)
   
@@ -138,30 +138,30 @@ G2_Consumo_12Hom <- function(df,TT)
           # legend.direction="horizontal",
           # legend.position = c(0.5,0.95),
           legend.text = element_text(size = 7.5))+
-    ylab(paste0("Consumo de eletricidade\n[",str_unit,"/mês]"))
+    ylab(paste0("Consumo de eletricidade\n[",str_unit,"/mÃªs]"))
   
 }
 
-### Gráfico 3:  Potência de tomada, contratada, instalada (MT) e mínima (MT)
-###             nos últimos 18 meses
+### GrÃ¡fico 3:  PotÃªncia de tomada, contratada, instalada (MT) e mÃ­nima (MT)
+###             nos Ãºltimos 18 meses
 G3_Potencia_Mensal <- function(df,TT)
 {
-  ### Filtrar os dados apenas à janela de 18 meses históricos pretendida:
+  ### Filtrar os dados apenas Ã  janela de 18 meses histÃ³ricos pretendida:
   df = df[df$HoP == "-1",]
   df = df[(nrow(df)-17):nrow(df),]
   
-  ### Meses em português no eixo das abcissas:
+  ### Meses em portuguÃªs no eixo das abcissas:
   Mes_toplot <- paste0(substr(Meses_pt(df$MesAno),1,3),"\n",substr(df$Ano,3,4))
   
   ### Data cleaning e tratamento da library Reshape2 para obter df em long format: 
   if (TT == "BTE") {
     df = cbind(df[,1:2],df[,4:5])
-    LL = c("Potência\ntomada", "Potência\ncontratada") #label da legenda
+    LL = c("PotÃªncia\ntomada", "PotÃªncia\ncontratada") #label da legenda
   }
   else if (TT == "MT") {
     df = cbind(df[,1:2],df[,4:7])
-    LL = c("Potência\ninstalada [kVA]", "Potência\nmínima [kW]",
-           "Potência\ntomada [kW]","Potência\ncontratada [kW]") #label da legenda
+    LL = c("PotÃªncia\ninstalada [kVA]", "PotÃªncia\nmÃ­nima [kW]",
+           "PotÃªncia\ntomada [kW]","PotÃªncia\ncontratada [kW]") #label da legenda
   }
   
   df = melt(df, id.vars = c("Ano","MesAno"))
@@ -176,7 +176,7 @@ G3_Potencia_Mensal <- function(df,TT)
       scale_colour_manual(values = c("#F8766D","black"),labels=LL) +
       scale_size_manual(values = c(1.3,1.5),labels=LL) +
       scale_linetype_manual(values = c("solid","longdash"),labels=LL) +
-      ylab("Potência elétrica\n[kW]") +
+      ylab("PotÃªncia elÃ©trica\n[kW]") +
       expand_limits(y=max(df$value)*1.1) +
       theme_minimal(base_size = 10) +
       theme(axis.title.x = element_blank(),
@@ -206,7 +206,7 @@ G3_Potencia_Mensal <- function(df,TT)
       scale_colour_manual(values = c("#00BFC4","#f7dc6f","#F8766D","black"),labels=LL) +
       scale_size_manual(values = c(1.5,1,1.3,1.5),labels=LL) +
       scale_linetype_manual(values = c("longdash","solid","solid","longdash"),labels=LL) +
-      ylab("Potência elétrica\n[kW e kVA]") +
+      ylab("PotÃªncia elÃ©trica\n[kW e kVA]") +
       expand_limits(y=max(df$value)*1.1) +
       theme_minimal(base_size = 10) +
       theme(axis.title.x = element_blank(),
@@ -224,18 +224,18 @@ G3_Potencia_Mensal <- function(df,TT)
   }
 }
 
-### Gráfico 4: Proporção percentual de consumo e despesa por categoria de ciclo
+### GrÃ¡fico 4: ProporÃ§Ã£o percentual de consumo e despesa por categoria de ciclo
 G4_Consumo_Anual_PHorario <- function(consumoDF, faturaDF, anoMes) 
 {
   consumoDF <- subset(consumoDF, as.yearmon(consumoDF$Date, format = "%b/%Y") 
                       <= as.yearmon(anoMes, format = "%Y-%m"))
   faturaDF <- subset(faturaDF, as.yearmon(faturaDF$Date, format = "%b/%Y") 
-                      <= as.yearmon(anoMes, format = "%Y-%m"))
+                     <= as.yearmon(anoMes, format = "%Y-%m"))
   
-  ### Filtrar dados apenas às colunas de consumo relevantes para este gráfico:
+  ### Filtrar dados apenas Ã s colunas de consumo relevantes para este grÃ¡fico:
   temp = consumoDF[,1:6]
   
-  #### Para utilizar dados do mês atual mais os 11 meses anteriores:
+  #### Para utilizar dados do mÃªs atual mais os 11 meses anteriores:
   temp = tail(temp, 12)
   
   #### Adicionar coluna de reativa com valores a 0 ao consumo para os dfs 
@@ -254,16 +254,16 @@ G4_Consumo_Anual_PHorario <- function(consumoDF, faturaDF, anoMes)
   
   faturaTemp <- tail(faturaTemp, 12)  # mesmo que anterior com df temp
   
-  ### Criação de df que agrega os valores dos dois df anteriores por categoria do ciclo:
+  ### CriaÃ§Ã£o de df que agrega os valores dos dois df anteriores por categoria do ciclo:
   dat_agr <- data.frame(CountConsumo = c(sum(temp$P), sum(temp$C), sum(temp$VN), sum(temp$SV), sum(temp$Reativa)), 
                         CountFatura = c(sum(faturaTemp$custo_P), sum(faturaTemp$custo_C), sum(faturaTemp$custo_VN), sum(faturaTemp$custo_SV), sum(faturaTemp$custo_reativa)), 
                         category = c("Ponta","Cheia","Vazio Normal","Super Vazio","Reativa"), 
                         stringsAsFactors = FALSE)
   
-  if(dat_agr$CountFatura[5] == 0 & dat_agr$CountConsumo[5] == 0) {  # Se não houver reativa
+  if(dat_agr$CountFatura[5] == 0 & dat_agr$CountConsumo[5] == 0) {  # Se nÃ£o houver reativa
     dat_agr <- dat_agr[-5,]}                                        # retirar do df essa categoria (linha 5)
   
-  ### Cálculo das percentagens por categoria:
+  ### CÃ¡lculo das percentagens por categoria:
   dat_agr$ConsumoPerc <- dat_agr$CountConsumo/sum(dat_agr$CountConsumo)
   dat_agr$FaturaPerc <- dat_agr$CountFatura/sum(dat_agr$CountFatura)
   
@@ -276,7 +276,7 @@ G4_Consumo_Anual_PHorario <- function(consumoDF, faturaDF, anoMes)
             "Super Vazio" = "#00BFC4",
             "Reativa" = "#bb8fce")
   
-  # Se surgir alguma vez um zero no gráfico no consumo em reactiva descomentar:
+  # Se surgir alguma vez um zero no grÃ¡fico no consumo em reactiva descomentar:
   # dat_agr$ConsumoPerc[dat_agr$ConsumoPerc == 0] <- NA
   
   ggplot(dat_agr) +
@@ -312,7 +312,7 @@ G4_Consumo_Anual_PHorario <- function(consumoDF, faturaDF, anoMes)
           legend.text = element_text(size = 7.5))
 }
 
-### Gráfico 5: Perfil do preço ao longo do dia (primeiro dia útil do mês)
+### GrÃ¡fico 5: Perfil do preÃ§o ao longo do dia (primeiro dia Ãºtil do mÃªs)
 G5_preco_unitario <- function(df, consumoDF, faturaDF, TT, anoMes)
 {
   
@@ -347,7 +347,7 @@ G5_preco_unitario <- function(df, consumoDF, faturaDF, TT, anoMes)
              fontface="italic",size=5,alpha=.2) +
     scale_x_datetime(date_breaks = "2 hour", labels = date_format("%H:%M"), expand=c(0.01,0)) +
     scale_colour_manual(values=CORES, labels = LABELS) +
-    ylab(paste0("Preço da eletricidade\nc/ IVA [EUR/kWh]")) +
+    ylab(paste0("PreÃ§o da eletricidade\nc/ IVA [EUR/kWh]")) +
     theme_minimal(base_size = 10) +
     theme(panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
@@ -360,7 +360,7 @@ G5_preco_unitario <- function(df, consumoDF, faturaDF, TT, anoMes)
           legend.text = element_text(size = 7.5))
 }
 
-### Gráfico 6: Perfil de consumo mensal por categoria tarifária
+### GrÃ¡fico 6: Perfil de consumo mensal por categoria tarifÃ¡ria
 G6_Perfil_Diario_Mensal <- function(df, TT, anoMes) 
 {
   ano <- as.numeric(substr(anoMes,1,4))
@@ -371,7 +371,7 @@ G6_Perfil_Diario_Mensal <- function(df, TT, anoMes)
   c_mes <- melt(c_mes, id=c("Day"))
   c_mes <- c_mes[with(c_mes, order(Day)),]
   
-  ### Unidades inteligentes que se adaptam à dimensão dos valores:
+  ### Unidades inteligentes que se adaptam Ã  dimensÃ£o dos valores:
   if (min(c_mes$value)>100) {
     c_mes$value <- round(c_mes$value/1000, digits = 2)
     str_unit <- "MWh"
@@ -413,18 +413,18 @@ G6_Perfil_Diario_Mensal <- function(df, TT, anoMes)
           legend.text = element_text(size = 7.5))
 }
 
-### Gráfico 7:  Consumo do mês em análise, por tipologia:
+### GrÃ¡fico 7:  Consumo do mÃªs em anÃ¡lise, por tipologia:
 G7_Consumo_Mes <- function(df,M)
 {
-  df = df[df$Mes == M,]  # Filtra df ao mês pretendido
+  df = df[df$Mes == M,]  # Filtra df ao mÃªs pretendido
   
-  ### Cria colunas com máximo, mínimo e média por tipologia em todas as colunas:
+  ### Cria colunas com mÃ¡ximo, mÃ­nimo e mÃ©dia por tipologia em todas as colunas:
   for (i in 1:nrow(df)) {df$MAX[i] <- max(df[(df[,5] == df[i,5]),2])}
   for (i in 1:nrow(df)) {df$MIN[i] <- min(df[(df[,5] == df[i,5]),2])}
   
   df$USDF <- factor(df$USDF, levels = c("U","S","D","F"))  # reordena tipologias para legenda
   
-  LL=c("2ª Feira","3ª Feira","4ª Feira","5ª Feira","6ª Feira","Sábado","Domingo")  # Labels eixo x
+  LL=c("2Âª Feira","3Âª Feira","4Âª Feira","5Âª Feira","6Âª Feira","SÃ¡bado","Domingo")  # Labels eixo x
   
   if (sum(df$Consumo)>1000) {TOTAL <- round(sum(df$Consumo)/1000, digits = 2); str_unit <- "MWh"}  
   else {TOTAL <- sum(df$Consumo); str_unit <- "kWh"}
@@ -477,7 +477,7 @@ G7_Consumo_Mes <- function(df,M)
              label = paste(Meses_pt(df[1,1]),year(df[1,1]),"-",TOTAL,str_unit),
              fontface="italic",size=4,alpha=.2) +
     scale_colour_manual(values = c("#f7dc6f","#00BFC4","#F8766D","#bb8fce"),
-                        labels=c("Dias úteis","Sábados","Domingos","Feriados\nem dia útil")) +
+                        labels=c("Dias Ãºteis","SÃ¡bados","Domingos","Feriados\nem dia Ãºtil")) +
     scale_y_continuous(breaks = pretty(df$Consumo, n = 6)) +
     scale_x_continuous(expand = c(0.08,0)) +
     ylab("Consumo de eletricidade\n[kWh]") +
@@ -493,13 +493,13 @@ G7_Consumo_Mes <- function(df,M)
           legend.text = element_text(size = 7.5))
 }
 
-### Gráfico 8: Perfis diários de potência média do mês M, por tipologia:
+### GrÃ¡fico 8: Perfis diÃ¡rios de potÃªncia mÃ©dia do mÃªs M, por tipologia:
 G8_Potencia_D_USDF <- function(df)
 {
   TOT_CONS = sum(df$Activa)/4
   
   dfMD = AUX_G8_Media_Dia(df)[[1]]
-  LI = AUX_G8_Media_Dia(df)[[2]]   # Label do índice
+  LI = AUX_G8_Media_Dia(df)[[2]]   # Label do Ã­ndice
   
   MIN = AUX_G8_Media_Dia(df)[[3]]
   FRAC = MIN*24*(nrow(df)/96)/TOT_CONS*100
@@ -508,11 +508,11 @@ G8_Potencia_D_USDF <- function(df)
   mes <- as.numeric(substr(dfMD[1,1],6,7))
   mes_ano_string <- paste(Meses_pt(mes),ano)
   
-  labels = c("Dias úteis","Sábados","Domingos","Feriados\nem dia útil")
+  labels = c("Dias Ãºteis","SÃ¡bados","Domingos","Feriados\nem dia Ãºtil")
   
   LABELS = paste0(labels," (",LI,")")
   
-  LABELS = c(LABELS,paste0("Mínimo\n(",MIN," kW, ",round(FRAC,0),"%)"))
+  LABELS = c(LABELS,paste0("MÃ­nimo\n(",MIN," kW, ",round(FRAC,0),"%)"))
   
   CORES = c("U" = "#f7dc6f",
             "S" = "#00BFC4",
@@ -528,7 +528,7 @@ G8_Potencia_D_USDF <- function(df)
                         labels = LABELS) +
     scale_y_continuous(limits = c(0,max(dfMD$value))) +
     theme_minimal(base_size = 10) +
-    ylab("Potência elétrica\n[kW]") +
+    ylab("PotÃªncia elÃ©trica\n[kW]") +
     theme(axis.title.x = element_blank(),
           axis.title.y = element_text(size = 12),
           panel.grid.major.x = element_blank(),
@@ -541,23 +541,23 @@ G8_Potencia_D_USDF <- function(df)
           legend.text = element_text(size = 7.5))
 }
 
-### Gráfico 9: Perfis diários de potência (filtrado por tipologia TIP) do mês M:
+### GrÃ¡fico 9: Perfis diÃ¡rios de potÃªncia (filtrado por tipologia TIP) do mÃªs M:
 G9_Potencia_D <- function(df,TIP)
 {
-  df[,1] = df[1:96,1]  # Instrução que faz com que todos os dias sejam dia 1 para
-  # sobrepor curvas no gráfico
+  df[,1] = df[1:96,1]  # InstruÃ§Ã£o que faz com que todos os dias sejam dia 1 para
+  # sobrepor curvas no grÃ¡fico
   
-  if (TIP == "U") {  # Só dias úteis
+  if (TIP == "U") {  # SÃ³ dias Ãºteis
     df = df[df$WDAY < 6,]
-    NAME = "Dias úteis"
+    NAME = "Dias Ãºteis"
     NCOLOR = 23
     COLOR = "#f7dc6f"
     TITLE = ""} else if (TIP == "S") {
       df = df[df$WDAY == 6,]
-      NAME = "Sábados"
+      NAME = "SÃ¡bados"
       NCOLOR = 5
       COLOR = "#00BFC4"
-      TITLE = "Potência elétrica [kW]"} else {
+      TITLE = "PotÃªncia elÃ©trica [kW]"} else {
         df = df[df$WDAY == 7,]
         NAME = "Domingos"
         NCOLOR = 5
@@ -596,38 +596,38 @@ G9_Potencia_D <- function(df,TIP)
   return(g)
 }
 
-### Gráfico 12: Comparação de perfis médios mensais, mês homólogo do ano anterior:
+### GrÃ¡fico 12: ComparaÃ§Ã£o de perfis mÃ©dios mensais, mÃªs homÃ³logo do ano anterior:
 G12_Comp_Hom <- function(df_D,df_Hom)
 {
   Mes = paste(Meses_pt(df_D[1,1]),year(df_D[1,1]))
   Mes_H = paste(Meses_pt(df_Hom[1,1]),year(df_Hom[1,1]))
   
-  ### Criar novo df com potências médias:
-  df_D = Aux_Perfil_M(df_D)                          # Perfil médio de potência de df (Mês atual)
-  df_Hom = Aux_Perfil_M(df_Hom)                      # Perfil médio de potência de df1 (Mês homólogo)
-  df = cbind(df_D,df_Hom[,2])                          # Juntar num df ambos os anteriores perfis médios de potência
-  colnames(df) <- c("timestamp","Media","Media_Hom")   # Atribuir nomes às colunas do df
+  ### Criar novo df com potÃªncias mÃ©dias:
+  df_D = Aux_Perfil_M(df_D)                          # Perfil mÃ©dio de potÃªncia de df (MÃªs atual)
+  df_Hom = Aux_Perfil_M(df_Hom)                      # Perfil mÃ©dio de potÃªncia de df1 (MÃªs homÃ³logo)
+  df = cbind(df_D,df_Hom[,2])                          # Juntar num df ambos os anteriores perfis mÃ©dios de potÃªncia
+  colnames(df) <- c("timestamp","Media","Media_Hom")   # Atribuir nomes Ã s colunas do df
   
-  if (df_D[1,2] < df_Hom[1,2]) {                       # Se a primeira entrada atual for inferior à homóloga,
-    FILLS = c("#58d68d","#F8766D")                   # começar com cor verde (diminuição)
-    LABELS = c("Diminuição","Aumento")}  else {        # senão é vermelho (aumento).   
+  if (df_D[1,2] < df_Hom[1,2]) {                       # Se a primeira entrada atual for inferior Ã  homÃ³loga,
+    FILLS = c("#58d68d","#F8766D")                   # comeÃ§ar com cor verde (diminuiÃ§Ã£o)
+    LABELS = c("DiminuiÃ§Ã£o","Aumento")}  else {        # senÃ£o Ã© vermelho (aumento).   
       FILLS = c("#F8766D","#58d68d")
-      LABELS = c("Aumento","Diminuição")}                
+      LABELS = c("Aumento","DiminuiÃ§Ã£o")}                
   
   df = Aux_Hom(df)   # Para criar df para o plot.
-
-  LINHAS <- c("Mês atual"="solid","Mês homólogo"="dashed")
+  
+  LINHAS <- c("MÃªs atual"="solid","MÃªs homÃ³logo"="dashed")
   
   ggplot(df, aes(timestamp, ymin = Media, ymax = Media_Hom)) +
     geom_ribbon(aes(group = factor(segment),fill = factor(segment%%2)),alpha=0.7) +
     geom_ribbon(aes(ymin = 0,ymax = MIN,group=1),fill = "grey80",alpha=0.8) +
-    geom_line(aes(y = Media, group = 1, linetype = "Mês atual"), size = .75) +
-    geom_line(aes(y = Media_Hom, group = 2, linetype = "Mês homólogo"), size = .75) +
+    geom_line(aes(y = Media, group = 1, linetype = "MÃªs atual"), size = .75) +
+    geom_line(aes(y = Media_Hom, group = 2, linetype = "MÃªs homÃ³logo"), size = .75) +
     scale_linetype_manual(values = LINHAS, labels = c(Mes,Mes_H)) +
     scale_fill_manual(values = FILLS, labels = LABELS) +
     scale_x_datetime(date_breaks = "2 hour", labels = date_format("%H:%M"), expand = c(0.01,0)) +
     theme_minimal(base_size = 10) +
-    ylab("Potência elétrica [kW]") +
+    ylab("PotÃªncia elÃ©trica [kW]") +
     guides(fill=guide_legend(ncol = 1,nrow=2,byrow=TRUE,order = 2),
            linetype=guide_legend(ncol = 1,nrow=2,byrow=TRUE,keywidth = unit(.8,"cm"),order = 1)) +
     theme(axis.title.x = element_blank(),
@@ -644,26 +644,26 @@ G12_Comp_Hom <- function(df_D,df_Hom)
           legend.direction = "horizontal")
 }
 
-### Função auxiliar ao gráfico G8, que devolve as potências médias por tipologia,
-### em long format (melt), e o número de dias por tipologia num vetor: 
+### FunÃ§Ã£o auxiliar ao grÃ¡fico G8, que devolve as potÃªncias mÃ©dias por tipologia,
+### em long format (melt), e o nÃºmero de dias por tipologia num vetor: 
 AUX_G8_Media_Dia <- function(df)
 {
   # Adiciona coluna com horas, minutos e segundos apenas
   df$HMS = format.Date(df[,1],"%H:%M:%S")
   
-  NU = nrow(df[df$USDF == "U",])/96   # Nº de dias uteis
-  NS = nrow(df[df$USDF == "S",])/96   # Nº de sábados
-  ND = nrow(df[df$USDF == "D",])/96   # Nº de domingos
-  NF = nrow(df[df$USDF == "F",])/96   # Nº de feriados
+  NU = nrow(df[df$USDF == "U",])/96   # NÂº de dias uteis
+  NS = nrow(df[df$USDF == "S",])/96   # NÂº de sÃ¡bados
+  ND = nrow(df[df$USDF == "D",])/96   # NÂº de domingos
+  NF = nrow(df[df$USDF == "F",])/96   # NÂº de feriados
   NUSDF = c(NU,NS,ND,NF)              # vetor com valores anteriores, 
-                                      # utilizados no gráfico G8
+  # utilizados no grÃ¡fico G8
   
-  dfU = df[df$USDF == "U",]  # df só com dias uteis
-  dfS = df[df$USDF == "S",]  # df só com sábados
-  dfD = df[df$USDF == "D",]  # df só com domingos
-  if (NF != 0) {dfF = df[df$USDF == "F",]}  # df só com feriados, se houver
+  dfU = df[df$USDF == "U",]  # df sÃ³ com dias uteis
+  dfS = df[df$USDF == "S",]  # df sÃ³ com sÃ¡bados
+  dfD = df[df$USDF == "D",]  # df sÃ³ com domingos
+  if (NF != 0) {dfF = df[df$USDF == "F",]}  # df sÃ³ com feriados, se houver
   
-  ### Potência média de quarto de hora por tipologia:
+  ### PotÃªncia mÃ©dia de quarto de hora por tipologia:
   dfUM <- aggregate(x = dfU["Activa"],by = list(dfU$HMS),FUN = mean)[,2]
   dfSM <- aggregate(x = dfS["Activa"],by = list(dfS$HMS),FUN = mean)[,2]
   dfDM <- aggregate(x = dfD["Activa"],by = list(dfD$HMS),FUN = mean)[,2]
@@ -671,22 +671,22 @@ AUX_G8_Media_Dia <- function(df)
   
   dfM = data.frame(timestamp = df[1:96,1])
   
-  ### Composição de novo df com os 4 dias médios por tipologia:
+  ### ComposiÃ§Ã£o de novo df com os 4 dias mÃ©dios por tipologia:
   dfM <- cbind(dfM,dfUM,dfSM,dfDM)
   colnames(dfM) <- c("timestamp","U","S","D")
   if (NF != 0) {dfM <- cbind(dfM,dfFM)  # se houver feriados
   colnames(dfM) <- c("timestamp","U","S","D","F")}
   
-  ### Coluna dos mínimo:
+  ### Coluna dos mÃ­nimo:
   dfM$MIN <- round(mean(c(min(dfM[,-1]),min(dfM[,2]),min(dfM[,3]),min(dfM[,4]))),0)
   
-  ### Conversão para long format:
+  ### ConversÃ£o para long format:
   dfML = melt(dfM, id.vars = c("timestamp"))
   
   return(list(dfML,NUSDF,dfM$MIN[1]))
 }
 
-### Função auxiliar aos gráficos G9 a G13, que devolve o perfil médio de potência: 
+### FunÃ§Ã£o auxiliar aos grÃ¡ficos G9 a G13, que devolve o perfil mÃ©dio de potÃªncia: 
 Aux_Perfil_M <- function(df)
 {
   TS = df[1:96,1]
@@ -695,28 +695,28 @@ Aux_Perfil_M <- function(df)
   return(dfM)
 }
 
-### Função auxiliar que devolve df processado para gráficos dos perfis diários 
-### em meses homólogos (G12):
+### FunÃ§Ã£o auxiliar que devolve df processado para grÃ¡ficos dos perfis diÃ¡rios 
+### em meses homÃ³logos (G12):
 Aux_Hom <- function(df)
 {
-  ### Nova coluna com o sinal (+1/-1) da diferença de potências médias:
+  ### Nova coluna com o sinal (+1/-1) da diferenÃ§a de potÃªncias mÃ©dias:
   df$sign <- sign(df$Media_Hom - df$Media)
   
-  ### Nova coluna X com as linhas posteriores à mudança de sinal (onde as curvas se intersetam):
+  ### Nova coluna X com as linhas posteriores Ã  mudanÃ§a de sinal (onde as curvas se intersetam):
   df$X = NA
   for (i in 2:nrow(df)) {
     if (df$sign[i] != df$sign[i-1]) {df$X[i] = i}
   }
-
-  ### Novo data frame PTS onde serão armazenadas as coordenadas dos pontos onde as curvas 
-  ### se intersetam. Este é inicializado com as linhas posteriores à mudança de sinal:
-  if (length(unique(df$X))!=1) {  # Se houver pontos de intersecção
+  
+  ### Novo data frame PTS onde serÃ£o armazenadas as coordenadas dos pontos onde as curvas 
+  ### se intersetam. Este Ã© inicializado com as linhas posteriores Ã  mudanÃ§a de sinal:
+  if (length(unique(df$X))!=1) {  # Se houver pontos de intersecÃ§Ã£o
     PTS = data.frame(Linha = sort(unique(df$X)))
     
     PTS$x = NA
     PTS$y = NA
     for (j in 1:nrow(PTS)) {            # Ciclo que calcula as coordenadas dos pontos de
-      y11= df[PTS[j,1]-1,"Media"]       # intersecção, com recurso a regras básicas de 
+      y11= df[PTS[j,1]-1,"Media"]       # intersecÃ§Ã£o, com recurso a regras bÃ¡sicas de 
       y21= df[PTS[j,1]-1,"Media_Hom"]   # geometria linear (i.e.: y = s(x - x0) + y0)
       y12= df[PTS[j,1],"Media"]
       y22= df[PTS[j,1],"Media_Hom"]
@@ -727,17 +727,17 @@ Aux_Hom <- function(df)
       PTS$y[j] = y11 + s1*x             # Coordenada y
     }
     
-    ### As seguintes instruções acrescentam as coordenadas anteriores ao df inicial, 
-    ### nas linhas respetivas, e organiza as zonas entre intersecções por segmentos:
+    ### As seguintes instruÃ§Ãµes acrescentam as coordenadas anteriores ao df inicial, 
+    ### nas linhas respetivas, e organiza as zonas entre intersecÃ§Ãµes por segmentos:
     df$X[PTS$Linha] <- PTS$x
     df$X[-PTS$Linha] <- NA
     df$Y <- NA
     df$Y[PTS$Linha] <- PTS$y
-    df$Y1 <- df$Y  # Duplicação da linha com as coordenadas y, auxiliar
+    df$Y1 <- df$Y  # DuplicaÃ§Ã£o da linha com as coordenadas y, auxiliar
     df$segment <- findInterval(row(df)[,1], c(df$X[which(!is.na(df$X))]))
     
-    ### Restantes operações matriciais são auxiliares para criação do df final, adaptadas da solução proposta na
-    ### seguinte página web: https://learnr.wordpress.com/2009/10/22/ggplot2-two-color-xy-area-combo-chart/
+    ### Restantes operaÃ§Ãµes matriciais sÃ£o auxiliares para criaÃ§Ã£o do df final, adaptadas da soluÃ§Ã£o proposta na
+    ### seguinte pÃ¡gina web: https://learnr.wordpress.com/2009/10/22/ggplot2-two-color-xy-area-combo-chart/
     df$X1 <- c(tail(df$X, -1), NA)
     df$Y2 <- c(tail(df$Y1, -1), NA)
     df$Y3 <- df$Y2
@@ -749,7 +749,7 @@ Aux_Hom <- function(df)
     names(df2) <- names(df1)
     names(df3) <- names(df1)
     
-    ### Conversão das coordenadas x numéricas em timestamp: 
+    ### ConversÃ£o das coordenadas x numÃ©ricas em timestamp: 
     df2$timestamp <- df1[1,1]+15*60*(df2$timestamp-1)
     df3$timestamp <- df1[1,1]+15*60*(df3$timestamp-1)
     
@@ -758,11 +758,11 @@ Aux_Hom <- function(df)
     combo <- combo[is.finite(combo$Media), ]
     combo <- combo[order(combo$timestamp), ]
     
-    ### Duas novas colunas no df final, combo, com os máximos e mínimos locais:
+    ### Duas novas colunas no df final, combo, com os mÃ¡ximos e mÃ­nimos locais:
     combo$MIN <- pmin(combo$Media,combo$Media_Hom)
     combo$MAX <- pmax(combo$Media,combo$Media_Hom)
     
-    return(combo)} else {  # Caso não haja intersecções
+    return(combo)} else {  # Caso nÃ£o haja intersecÃ§Ãµes
       df$segment = 1
       df$MIN <- pmin(df$Media,df$Media_Hom)
       df$MAX <- pmax(df$Media,df$Media_Hom)

@@ -1,7 +1,7 @@
 
-### Faz update da informa??o na DBLEB, com timestamp.
+### Faz update da informação na DBLEB, com timestamp.
 
-UplDB <- function(CodInst,df)
+UpdDB <- function(CodInst,df)
 {
   library(RODBC)
   
@@ -72,8 +72,8 @@ CreateTableDB <- function(CodInst) {
   rm(con)
 }
 
-### OLD! ...Faz update da informa??o na DBLEB, para timestamp apenas com dia no
-### calend?rio, acrescentando quarto hor?rio com base numa f?rmula matem?tica.
+### OLD! ...Faz update da informação na DBLEB, para timestamp apenas com dia no
+### calendário, acrescentando quarto horário com base numa fórmula matemática.
 
 # UplDB_woT <- function(CodInst,df)
 # {

@@ -7,29 +7,29 @@ forecast <- function(HIST,AA,MF,PM) {
   Y = last(HIST[,1])
   SA = rowsum(HIST$Consumo,HIST$Ano)
   
-  a = 0.62   # há um ano
-  b = 0.10   # há um mês
-  c = 0   # há dois meses
-  d = 0   # há três meses
-  e = 0.005   # total anual há dois anos
-  f = 0.01   # total anual há um ano
-  g = 0    # OPT # rácio entre somatório anual até mês em questão e período homólogo
+  a = 0.62   # hÃ¡ um ano
+  b = 0.10   # hÃ¡ um mÃªs
+  c = 0   # hÃ¡ dois meses
+  d = 0   # hÃ¡ trÃªs meses
+  e = 0.005   # total anual hÃ¡ dois anos
+  f = 0.01   # total anual hÃ¡ um ano
+  g = 0    # OPT # rÃ¡cio entre somatÃ³rio anual atÃ© mÃªs em questÃ£o e perÃ­odo homÃ³logo
   
-  # Previsão óptima combinada entre TeatSLuiz, CastSaoJor e MuseuJuPom:
-  # a = 0.48   # há um ano
-  # b = 0.18   # há um mês
-  # c = 0.08   # há dois meses
-  # d = 0.05   # há três meses
-  # e = 0.005   # total anual há dois anos
-  # f = 0.01   # total anual há um ano
-  # g = 0.35    # OPT # rácio entre somatório anual até mês em questão e período homólogo
+  # PrevisÃ£o Ã³ptima combinada entre TeatSLuiz, CastSaoJor e MuseuJuPom:
+  # a = 0.48   # hÃ¡ um ano
+  # b = 0.18   # hÃ¡ um mÃªs
+  # c = 0.08   # hÃ¡ dois meses
+  # d = 0.05   # hÃ¡ trÃªs meses
+  # e = 0.005   # total anual hÃ¡ dois anos
+  # f = 0.01   # total anual hÃ¡ um ano
+  # g = 0.35    # OPT # rÃ¡cio entre somatÃ³rio anual atÃ© mÃªs em questÃ£o e perÃ­odo homÃ³logo
   
-  # Previsão perfeita para 2017 em casos em que consumo anual aumentou (TeatSLuiz, CastSaoJor)
-  # Não tinha o coeficiente "e".
-  # a = 0.62   # há um ano
-  # b = 0.1   # há um mês
-  # c = 0.005   # total anual há dois anos
-  # d = 0.01   # total anual há um ano
+  # PrevisÃ£o perfeita para 2017 em casos em que consumo anual aumentou (TeatSLuiz, CastSaoJor)
+  # NÃ£o tinha o coeficiente "e".
+  # a = 0.62   # hÃ¡ um ano
+  # b = 0.1   # hÃ¡ um mÃªs
+  # c = 0.005   # total anual hÃ¡ dois anos
+  # d = 0.01   # total anual hÃ¡ um ano
   
   
   PREV = rep(0,MF)
@@ -248,12 +248,12 @@ PBM <- function(RegInst) {
 }
 
 
-Agr_Mes_HP_v2 <- function(df,M) #df - data frame; M - mês do relatório
+Agr_Mes_HP_v2 <- function(df,M) #df - data frame; M - mÃªs do relatÃ³rio
 {  
-  ### Para criar uma nova coluna no df com o registo do mês:
+  ### Para criar uma nova coluna no df com o registo do mÃªs:
   df$MesAno <- as.yearmon(cut(df$timestamp, breaks = "month"))
   
-  ### Para cortar até ao mês M para o qual se pretende o relatório:
+  ### Para cortar atÃ© ao mÃªs M para o qual se pretende o relatÃ³rio:
   CM = as.yearmon(M)
   df = df[!(df$MesAno > CM),]
   
@@ -264,12 +264,12 @@ Agr_Mes_HP_v2 <- function(df,M) #df - data frame; M - mês do relatório
   MesAno_ts <- unique(df$MesAno)
   Anos <- year(MesAno_ts)
   
-  ### Para criar novo df que agrega informação mensal, df_AM:
+  ### Para criar novo df que agrega informaÃ§Ã£o mensal, df_AM:
   df_AM = data.frame(Ano=Anos,
                      MesAno=MesAno_ts, 
                      Consumo=rowsum(df$Consumo, df$MesAno))
   
-  ### Criar df com histórico ultimos 2 anos mais o presente até mês actual: 
+  ### Criar df com histÃ³rico ultimos 2 anos mais o presente atÃ© mÃªs actual: 
   HIST <- df_AM[df_AM$Ano %in% c(last(df_AM$Ano)-2,
                                  last(df_AM$Ano)-1,
                                  last(df_AM$Ano)), ]
@@ -284,24 +284,24 @@ Agr_Mes_HP_v2 <- function(df,M) #df - data frame; M - mês do relatório
   
   
   
-  ### Criar df para previsão do restante ano actual:
+  ### Criar df para previsÃ£o do restante ano actual:
   PREV <- data.frame(matrix(nrow = MF, ncol = 3))
   names(PREV) <- names(HIST)
   
-  ### Caso exista previsão, cria vector Meses_anos_mis com anos e meses em 
-  ### português para meses incluídos na previsão (restantes do ano):
+  ### Caso exista previsÃ£o, cria vector Meses_anos_mis com anos e meses em 
+  ### portuguÃªs para meses incluÃ­dos na previsÃ£o (restantes do ano):
   if (MF != 0) {
     PREV[,2] <- last(HIST$MesAno) + seq(1/12,MF/12,1/12)
     PREV[,1] <- last(HIST$Ano)
     
     PM = month(HIST[1,2])
     
-    # AQUI INSERIR ALGORITMO DE PREVISÃO
+    # AQUI INSERIR ALGORITMO DE PREVISÃƒO
     if (AA != 0) {PREV[,3] <- forecast(HIST,AA,MF,PM)}
     else {PREV[,3] <- last(HIST[,3])}
     
   }
-  ### Agrega ambos os data data frames (histórico e previsão) num só:
+  ### Agrega ambos os data data frames (histÃ³rico e previsÃ£o) num sÃ³:
   df_AM_HP <- rbind(HIST,PREV)
   
   return(df_AM_HP)

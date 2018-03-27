@@ -1,7 +1,7 @@
-#Per?odo I - de 1 de Janeiro a 31 de Marco
-#Per?odo II - de 1 de Abril a 30 de Junho
-#Per?odo III - de 1 de Julho a 30 de Setembro
-#Per?odo IV - de 1 de Outubro a 31 de Dezembro
+#Período I - de 1 de Janeiro a 31 de Marco
+#Período II - de 1 de Abril a 30 de Junho
+#Período III - de 1 de Julho a 30 de Setembro
+#Período IV - de 1 de Outubro a 31 de Dezembro
 
 ########################################################
 #******************************************************#
@@ -197,7 +197,7 @@ names(opDomVer) <- c("VN","SV")
 
 ##################################################
 #************************************************#
-#*Ciclo di?rio para clientes (cd) - BTN e BTE ***#
+#*Ciclo diário para clientes (cd) - BTN e BTE ***#
 #************************************************#
 ##################################################
 
