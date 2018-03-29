@@ -1,8 +1,8 @@
 ---
 output:
   pdf_document:
-    latex_engine: xelatex
     fig_caption: yes
+    latex_engine: xelatex
 fontsize: 11 pt
 geometry: margin = 2.54cm
 mainfont: Calibri Light
