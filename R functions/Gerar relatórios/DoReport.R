@@ -101,7 +101,8 @@ DoReport <- function(CILs,Ano_Mes) {
     p = p + 1; setWinProgressBar(pb, p)
     
     file.rename(from = outdir, 
-                to = paste0("Relatórios/",outdir))
+                to = paste0("../Relatórios/",outdir))
+    
   }
   
   options(OutDec= ".")

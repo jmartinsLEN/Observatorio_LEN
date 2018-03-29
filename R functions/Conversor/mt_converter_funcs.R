@@ -9,7 +9,8 @@ fileReaderMT <- function(cil) {
   activa <- c()
   indutiva <- c()
   capacitiva <- c()
-  for(file in list.files(path = paste("./data/MT/", cil, sep = ""))) {
+  
+  for(file in list.files(path = paste("../Data/MT/", cil, sep = ""))) {
     file_name <- strsplit(file, '.xls')[[1]][1]
     switch (strsplit(file_name, '_')[[1]][1],
             "A" = {activa <- append(activa, file)},
@@ -73,7 +74,7 @@ create_EnergCompColumn <- function(EnergcompDF, cil) {
   convertedDframe <- data.frame()
   
   for(mtCompFileName in EnergcompDF) {
-    compDf <- read_xls(paste("./data/MT/", cil, "/", mtCompFileName, sep = ""), range="B27:CT58")
+    compDf <- read_xls(paste("../Data/MT/", cil, "/", mtCompFileName, sep = ""), range="B27:CT58")
     compDf_Traspose <- as.data.frame(t(compDf))
     colnames(compDf_Traspose) <- compDf_Traspose["Dia",]
     compDf_Traspose <- cbind("Dia hora"= rownames(compDf_Traspose), compDf_Traspose, stringsAsFactors=FALSE)
